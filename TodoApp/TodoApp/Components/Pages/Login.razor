@@ -18,7 +18,7 @@
             </div>
         }
 
-        <form action="Account/Login" method="post">
+        <form action="Account/Login" method="post" @formname="LoginForm">
             <AntiforgeryToken />
 
             <input type="hidden" name="ReturnUrl" value="@ReturnUrl" />

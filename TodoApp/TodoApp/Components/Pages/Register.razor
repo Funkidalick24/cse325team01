@@ -18,7 +18,7 @@
             </div>
         }
 
-        <form action="Account/Register" method="post">
+        <form action="Account/Register" method="post" @formname="RegisterForm">
             <AntiforgeryToken />
 
             <input type="hidden" name="ReturnUrl" value="@ReturnUrl" />
