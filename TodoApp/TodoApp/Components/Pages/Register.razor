@@ -1,0 +1,56 @@
+@page "/register"
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Authentication
+@using TodoApp.Models
+@using System.ComponentModel.DataAnnotations
+@inject NavigationManager NavigationManager
+
+<PageTitle>Register</PageTitle>
+
+<div class="auth-container">
+    <div class="auth-card shadow-sm">
+        <h2 class="text-center mb-4">Register</h2>
+
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <div class="alert alert-danger" role="alert">
+                @ErrorMessage
+            </div>
+        }
+
+        <form action="Account/Register" method="post" @formname="RegisterForm">
+            <AntiforgeryToken />
+
+            <input type="hidden" name="ReturnUrl" value="@ReturnUrl" />
+
+            <div class="form-group mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" name="Email" id="email" class="form-control" placeholder="name@example.com" required />
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" name="Password" id="password" class="form-control" placeholder="Password" required minlength="6" />
+            </div>
+
+            <div class="form-group mb-4">
+                <label for="confirm-password" class="form-label">Confirm Password</label>
+                <input type="password" name="ConfirmPassword" id="confirm-password" class="form-control" placeholder="Confirm Password" required minlength="6" />
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Register</button>
+
+            <div class="text-center mt-3">
+                <p>Already have an account? <a href="/login">Login here</a>.</p>
+            </div>
+        </form>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromQuery(Name = "error")]
+    public string? ErrorMessage { get; set; }
+
+    [SupplyParameterFromQuery]
+    public string? ReturnUrl { get; set; }
+}

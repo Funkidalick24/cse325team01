@@ -1,0 +1,109 @@
+@page "/tasks/add"
+@using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
+@using TodoApp.Models
+@using TodoApp.Models.Enums
+@using TodoApp.Services
+@attribute [Authorize]
+@inject ITaskService TaskService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+
+<PageTitle>Add New Task</PageTitle>
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Add New Task</h5>
+        </div>
+        <div class="card-body">
+            @if (CurrentTask != null)
+            {
+                <EditForm Model="CurrentTask" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="InvalidSubmit" FormName="Add">
+                    <AntiforgeryToken />
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="form-group mb-3">
+                        <label for="title" class="form-label">Title</label>
+                        <InputText id="title" class="form-control" @bind-Value="CurrentTask.Title" placeholder="Task title" />
+                        <ValidationMessage For="() => CurrentTask.Title" class="text-danger" />
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="description" class="form-label">Description (Optional)</label>
+                        <InputTextArea id="description" class="form-control" @bind-Value="CurrentTask.Description" rows="3" placeholder="Task description" />
+                        <ValidationMessage For="() => CurrentTask.Description" class="text-danger" />
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6 form-group">
+                            <label for="dueDate" class="form-label">Due Date</label>
+                            <InputDate id="dueDate" class="form-control" @bind-Value="CurrentTask.DueDate" />
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label for="priority" class="form-label">Priority</label>
+                            <InputSelect id="priority" class="form-select" @bind-Value="CurrentTask.Priority">
+                                @foreach (var priority in Enum.GetValues<Priority>())
+                                {
+                                    <option value="@priority">@priority.ToString()</option>
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label">Category</label>
+                        <div class="category-radio-group">
+                            <InputRadioGroup @bind-Value="CurrentTask.Category">
+                                @foreach (var category in Enum.GetValues<TaskCategory>())
+                                {
+                                    <label class="category-radio category-@category.ToString().ToLower()">
+                                        <InputRadio Value="@category" />
+                                        <span>@category.ToString()</span>
+                                    </label>
+                                }
+                            </InputRadioGroup>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <a href="/tasks" class="btn btn-secondary me-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </EditForm>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromForm(FormName = "Add")]
+    public TaskItem? CurrentTask { get; set; }
+
+    private string UserId { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        UserId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+        CurrentTask ??= new TaskItem { UserId = UserId };
+    }
+
+    public async Task HandleValidSubmit()
+    {
+        Console.WriteLine($"[DEBUG] ValidSubmit triggered. Saving...");
+        if (CurrentTask != null)
+        {
+            CurrentTask.UserId = UserId; // ensure the correct user ID is set just in case
+            await TaskService.CreateTaskAsync(CurrentTask, UserId);
+        }
+        NavigationManager.NavigateTo("/tasks");
+    }
+
+    protected void InvalidSubmit()
+    {
+        Console.WriteLine($"[DEBUG] InvalidSubmit triggered.");
+    }
+}

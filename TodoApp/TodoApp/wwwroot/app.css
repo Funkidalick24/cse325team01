@@ -1,0 +1,301 @@
+:root {
+    --primary-color: #4361ee;
+    --success-color: #2a9d8f;
+    --danger-color: #e76f51;
+    --warning-color: #e9c46a;
+    --bg-color: #f8f9fa;
+    --text-color: #212529;
+
+    --work-color: #4361ee;
+    --personal-color: #9c89b8;
+    --shopping-color: #2a9d8f;
+    --health-color: #e76f51;
+    --other-color: #6c757d;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Auth Pages */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 100px);
+}
+
+.auth-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+}
+
+.auth-card h2 {
+    margin-top: 0;
+    color: var(--primary-color);
+}
+
+/* Hero Section */
+.hero-section {
+    text-align: center;
+    padding: 4rem 1rem;
+}
+
+.hero-content h1 {
+    font-size: 3rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.hero-content p {
+    font-size: 1.25rem;
+    color: #6c757d;
+    margin-bottom: 2rem;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.features-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: center;
+    margin-top: 4rem;
+}
+
+.feature-item {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    width: 250px;
+}
+
+.feature-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Dashboard */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.dashboard-title h2 {
+    margin: 0 0 0.5rem 0;
+}
+
+.dashboard-stats {
+    display: flex;
+    gap: 1rem;
+}
+
+.stat-badge {
+    background: #e9ecef;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.stat-pending {
+    background: rgba(233, 196, 106, 0.2);
+    color: #b08d20;
+}
+
+.stat-completed {
+    background: rgba(42, 157, 143, 0.2);
+    color: var(--success-color);
+}
+
+/* Category Filter */
+.category-filter {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    background: white;
+    border: 1px solid #dee2e6;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+}
+
+.filter-btn:hover {
+    background: #f8f9fa;
+}
+
+.filter-btn.active {
+    background: #e9ecef;
+    border-color: #ced4da;
+    font-weight: 600;
+}
+
+.category-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+/* Task Cards */
+.task-group {
+    margin-bottom: 2rem;
+}
+
+.task-group-title {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.task-list {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+.task-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.25rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border-left: 4px solid #dee2e6;
+    display: flex;
+    flex-direction: column;
+}
+
+.task-card.completed {
+    background: #f8f9fa;
+}
+
+.task-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.task-title-group {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.task-title {
+    margin: 0;
+    font-size: 1.125rem;
+    word-break: break-word;
+}
+
+.task-description {
+    margin: 0.5rem 0 1rem 0;
+    font-size: 0.9rem;
+}
+
+.task-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.task-badges {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+    padding: 0 0.25rem;
+}
+
+.btn-icon:hover {
+    opacity: 1;
+}
+
+/* Categories Colors */
+.category-work .category-dot, .category-work.badge-category { background-color: var(--work-color); color: white; }
+.category-personal .category-dot, .category-personal.badge-category { background-color: var(--personal-color); color: white; }
+.category-shopping .category-dot, .category-shopping.badge-category { background-color: var(--shopping-color); color: white; }
+.category-health .category-dot, .category-health.badge-category { background-color: var(--health-color); color: white; }
+.category-other .category-dot, .category-other.badge-category { background-color: var(--other-color); color: white; }
+
+/* Priorities */
+.priority-high { background-color: rgba(231, 111, 81, 0.1); color: var(--danger-color); }
+.priority-medium { background-color: rgba(233, 196, 106, 0.1); color: #b08d20; }
+.priority-low { background-color: rgba(42, 157, 143, 0.1); color: var(--success-color); }
+
+/* Utilities */
+.text-strikethrough { text-decoration: line-through; }
+.text-muted { color: #6c757d; }
+.text-danger { color: var(--danger-color); }
+.fw-bold { font-weight: bold; }
+
+/* Radio Group */
+.category-radio-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.category-radio {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+    cursor: pointer;
+}
+
+.category-radio span {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.category-radio.category-work { border-left: 4px solid var(--work-color); }
+.category-radio.category-personal { border-left: 4px solid var(--personal-color); }
+.category-radio.category-shopping { border-left: 4px solid var(--shopping-color); }
+.category-radio.category-health { border-left: 4px solid var(--health-color); }
+.category-radio.category-other { border-left: 4px solid var(--other-color); }

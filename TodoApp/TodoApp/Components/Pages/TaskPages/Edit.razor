@@ -1,0 +1,120 @@
+@page "/tasks/edit/{Id:int}"
+@using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
+@using TodoApp.Models
+@using TodoApp.Models.Enums
+@using TodoApp.Services
+@attribute [Authorize]
+@inject ITaskService TaskService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit Task</PageTitle>
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Edit Task</h5>
+        </div>
+        <div class="card-body">
+            @if (CurrentTask == null)
+            {
+                <p>Loading...</p>
+            }
+            else
+            {
+                <EditForm Model="CurrentTask" OnValidSubmit="HandleValidSubmit" FormName="EditTaskForm" FormMappingName="EditTaskForm">
+                    <AntiforgeryToken />
+                    <DataAnnotationsValidator />
+
+                    <input type="hidden" name="CurrentTask.Id" value="@CurrentTask.Id" />
+
+                    <div class="form-group mb-3">
+                        <label for="title" class="form-label">Title</label>
+                        <InputText id="title" class="form-control" @bind-Value="CurrentTask.Title" placeholder="Task title" />
+                        <ValidationMessage For="() => CurrentTask.Title" class="text-danger" />
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="description" class="form-label">Description (Optional)</label>
+                        <InputTextArea id="description" class="form-control" @bind-Value="CurrentTask.Description" rows="3" placeholder="Task description" />
+                        <ValidationMessage For="() => CurrentTask.Description" class="text-danger" />
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6 form-group">
+                            <label for="dueDate" class="form-label">Due Date</label>
+                            <InputDate id="dueDate" class="form-control" @bind-Value="CurrentTask.DueDate" />
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label for="priority" class="form-label">Priority</label>
+                            <InputSelect id="priority" class="form-select" @bind-Value="CurrentTask.Priority">
+                                @foreach (var priority in Enum.GetValues<Priority>())
+                                {
+                                    <option value="@priority">@priority.ToString()</option>
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label">Category</label>
+                        <div class="category-radio-group">
+                            <InputRadioGroup @bind-Value="CurrentTask.Category">
+                                @foreach (var category in Enum.GetValues<TaskCategory>())
+                                {
+                                    <label class="category-radio category-@category.ToString().ToLower()">
+                                        <InputRadio Value="@category" />
+                                        <span>@category.ToString()</span>
+                                    </label>
+                                }
+                            </InputRadioGroup>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <a href="/tasks" class="btn btn-secondary me-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </EditForm>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm(FormName = "EditTaskForm")]
+    public TaskItem? CurrentTask { get; set; }
+
+    private string UserId { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        UserId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+
+        if (CurrentTask == null)
+        {
+            var task = await TaskService.GetTaskAsync(Id, UserId);
+            if (task == null)
+            {
+                NavigationManager.NavigateTo("/tasks");
+                return;
+            }
+            CurrentTask = task;
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (CurrentTask != null)
+        {
+            await TaskService.UpdateTaskAsync(CurrentTask, UserId);
+            NavigationManager.NavigateTo("/tasks");
+        }
+    }
+}

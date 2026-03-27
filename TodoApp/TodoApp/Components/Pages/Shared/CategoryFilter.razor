@@ -1,0 +1,19 @@
+@using TodoApp.Models.Enums
+
+<div class="category-filter">
+    <a href="/tasks" class="filter-btn text-decoration-none @(SelectedCategory == null ? "active" : "")">
+        All Tasks
+    </a>
+
+    @foreach (var category in Enum.GetValues<TaskCategory>())
+    {
+        <a href="/tasks?category=@category.ToString().ToLower()" class="filter-btn text-decoration-none category-@category.ToString().ToLower() @(SelectedCategory == category ? "active" : "")">
+            <span class="category-dot"></span>
+            @category.ToString()
+        </a>
+    }
+</div>
+
+@code {
+    [Parameter] public TaskCategory? SelectedCategory { get; set; }
+}

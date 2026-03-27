@@ -1,0 +1,56 @@
+@page "/"
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+
+<PageTitle>Home</PageTitle>
+
+<div class="hero-section">
+    <div class="hero-content">
+        <h1>Welcome to TodoApp</h1>
+        <p>A simple, polished, and minimalist tool for busy people to manage their daily tasks.</p>
+
+        <AuthorizeView>
+            <Authorized>
+                <div class="hero-buttons">
+                    <a href="/tasks" class="btn btn-primary btn-lg">Go to My Tasks</a>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <div class="hero-buttons">
+                    <a href="/login" class="btn btn-primary btn-lg">Login</a>
+                    <a href="/register" class="btn btn-outline-primary btn-lg">Register</a>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+    </div>
+
+    <div class="features-preview mt-5">
+        <div class="feature-item">
+            <div class="feature-icon">✨</div>
+            <h3>Simple & Clean</h3>
+            <p>A minimalist design with no clutter. Focus only on what matters.</p>
+        </div>
+        <div class="feature-item">
+            <div class="feature-icon">🏷️</div>
+            <h3>Categorize</h3>
+            <p>Organize your tasks easily with predefined categories and colors.</p>
+        </div>
+        <div class="feature-item">
+            <div class="feature-icon">⚡</div>
+            <h3>Fast & Responsive</h3>
+            <p>Works great on desktop and mobile devices.</p>
+        </div>
+    </div>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated ?? false)
+        {
+            NavigationManager.NavigateTo("/tasks");
+        }
+    }
+}

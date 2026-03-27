@@ -1,0 +1,108 @@
+@page "/tasks"
+@using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
+@using TodoApp.Models
+@using TodoApp.Models.Enums
+@using TodoApp.Services
+@using TodoApp.Components.Pages.Shared
+@attribute [Authorize]
+@inject ITaskService TaskService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<PageTitle>Dashboard - Tasks</PageTitle>
+
+<div class="dashboard-header">
+    <div class="dashboard-title">
+        <h2>My Tasks</h2>
+        <div class="dashboard-stats">
+            <span class="stat-badge">Total: @TasksList.Count</span>
+            <span class="stat-badge stat-pending">Pending: @PendingTasks.Count</span>
+            <span class="stat-badge stat-completed">Completed: @CompletedTasks.Count</span>
+        </div>
+    </div>
+    <div class="dashboard-actions">
+        <a href="/tasks/add" class="btn btn-primary">+ Add New Task</a>
+    </div>
+</div>
+
+<CategoryFilter SelectedCategory="@SelectedCategory" />
+
+<div class="tasks-container">
+    @if (!FilteredTasks.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-icon">📝</div>
+            <h3>No tasks found</h3>
+            <p>You have no tasks matching the selected filter.</p>
+            <a href="/tasks/add" class="btn btn-primary mt-3">Create your first task</a>
+        </div>
+    }
+    else
+    {
+        @if (FilteredPendingTasks.Any())
+        {
+            <div class="task-group">
+                <h3 class="task-group-title">Pending Tasks</h3>
+                <div class="task-list">
+                    @foreach (var task in FilteredPendingTasks)
+                    {
+                        <TaskCard Task="@task" />
+                    }
+                </div>
+            </div>
+        }
+
+        @if (FilteredCompletedTasks.Any())
+        {
+            <div class="task-group mt-4">
+                <h3 class="task-group-title text-muted">Completed Tasks</h3>
+                <div class="task-list opacity-75">
+                    @foreach (var task in FilteredCompletedTasks)
+                    {
+                        <TaskCard Task="@task" />
+                    }
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    [SupplyParameterFromQuery(Name = "category")]
+    public string? SelectedCategoryString { get; set; }
+
+    private TaskCategory? SelectedCategory => Enum.TryParse<TaskCategory>(SelectedCategoryString, true, out var parsedCategory)
+        ? parsedCategory
+        : null;
+
+    private List<TaskItem> TasksList { get; set; } = new();
+    private bool IsLoading { get; set; } = true;
+    private string UserId { get; set; } = string.Empty;
+
+    private List<TaskItem> PendingTasks => TasksList.Where(t => !t.IsCompleted).ToList();
+    private List<TaskItem> CompletedTasks => TasksList.Where(t => t.IsCompleted).ToList();
+
+    private IEnumerable<TaskItem> FilteredTasks => SelectedCategory.HasValue
+        ? TasksList.Where(t => t.Category == SelectedCategory.Value)
+        : TasksList;
+
+    private IEnumerable<TaskItem> FilteredPendingTasks => FilteredTasks.Where(t => !t.IsCompleted)
+        .OrderByDescending(t => t.DueDate.HasValue && t.DueDate.Value.Date < DateTime.UtcNow.Date) // Overdue first
+        .ThenBy(t => t.DueDate ?? DateTime.MaxValue) // Then by due date
+        .ThenByDescending(t => t.Priority);
+
+    private IEnumerable<TaskItem> FilteredCompletedTasks => FilteredTasks.Where(t => t.IsCompleted)
+        .OrderByDescending(t => t.CompletedAt ?? DateTime.MinValue);
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        UserId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+
+        if (!string.IsNullOrEmpty(UserId))
+        {
+            TasksList = await TaskService.GetTasksAsync(UserId);
+        }
+    }
+}

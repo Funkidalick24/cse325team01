@@ -1,0 +1,51 @@
+@page "/login"
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Authentication
+@using TodoApp.Models
+@using System.ComponentModel.DataAnnotations
+@inject NavigationManager NavigationManager
+
+<PageTitle>Login</PageTitle>
+
+<div class="auth-container">
+    <div class="auth-card shadow-sm">
+        <h2 class="text-center mb-4">Login</h2>
+
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <div class="alert alert-danger" role="alert">
+                @ErrorMessage
+            </div>
+        }
+
+        <form action="Account/Login" method="post" @formname="LoginForm">
+            <AntiforgeryToken />
+
+            <input type="hidden" name="ReturnUrl" value="@ReturnUrl" />
+
+            <div class="form-group mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" name="Email" id="email" class="form-control" placeholder="name@example.com" required />
+            </div>
+
+            <div class="form-group mb-4">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" name="Password" id="password" class="form-control" placeholder="Password" required />
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Log in</button>
+
+            <div class="text-center mt-3">
+                <p>Don't have an account? <a href="/register">Register here</a>.</p>
+            </div>
+        </form>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromQuery(Name = "error")]
+    public string? ErrorMessage { get; set; }
+
+    [SupplyParameterFromQuery]
+    public string? ReturnUrl { get; set; }
+}
