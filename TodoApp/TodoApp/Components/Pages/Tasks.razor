@@ -28,48 +28,45 @@
 
 <CategoryFilter SelectedCategory="@SelectedCategory" />
 
-<form method="post" @formname="tasksListForm" action="/tasks">
-    <AntiforgeryToken />
-    <div class="tasks-container">
-        @if (!FilteredTasks.Any())
+<div class="tasks-container">
+    @if (!FilteredTasks.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-icon">📝</div>
+            <h3>No tasks found</h3>
+            <p>You have no tasks matching the selected filter.</p>
+            <a href="/tasks/add" class="btn btn-primary mt-3">Create your first task</a>
+        </div>
+    }
+    else
+    {
+        @if (FilteredPendingTasks.Any())
         {
-            <div class="empty-state">
-                <div class="empty-icon">📝</div>
-                <h3>No tasks found</h3>
-                <p>You have no tasks matching the selected filter.</p>
-                <a href="/tasks/add" class="btn btn-primary mt-3">Create your first task</a>
+            <div class="task-group">
+                <h3 class="task-group-title">Pending Tasks</h3>
+                <div class="task-list">
+                    @foreach (var task in FilteredPendingTasks)
+                    {
+                        <TaskCard Task="@task" />
+                    }
+                </div>
             </div>
         }
-        else
-        {
-            @if (FilteredPendingTasks.Any())
-            {
-                <div class="task-group">
-                    <h3 class="task-group-title">Pending Tasks</h3>
-                    <div class="task-list">
-                        @foreach (var task in FilteredPendingTasks)
-                        {
-                            <TaskCard Task="@task" />
-                        }
-                    </div>
-                </div>
-            }
 
-            @if (FilteredCompletedTasks.Any())
-            {
-                <div class="task-group mt-4">
-                    <h3 class="task-group-title text-muted">Completed Tasks</h3>
-                    <div class="task-list opacity-75">
-                        @foreach (var task in FilteredCompletedTasks)
-                        {
-                            <TaskCard Task="@task" />
-                        }
-                    </div>
+        @if (FilteredCompletedTasks.Any())
+        {
+            <div class="task-group mt-4">
+                <h3 class="task-group-title text-muted">Completed Tasks</h3>
+                <div class="task-list opacity-75">
+                    @foreach (var task in FilteredCompletedTasks)
+                    {
+                        <TaskCard Task="@task" />
+                    }
                 </div>
-            }
+            </div>
         }
-    </div>
-</form>
+    }
+</div>
 
 @code {
     [SupplyParameterFromQuery(Name = "category")]
@@ -98,30 +95,10 @@
     private IEnumerable<TaskItem> FilteredCompletedTasks => FilteredTasks.Where(t => t.IsCompleted)
         .OrderByDescending(t => t.CompletedAt ?? DateTime.MinValue);
 
-    [SupplyParameterFromForm(FormName = "tasksListForm")]
-    public string? TaskAction { get; set; }
-
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         UserId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
-
-        if (!string.IsNullOrEmpty(UserId) && !string.IsNullOrEmpty(TaskAction))
-        {
-            var parts = TaskAction.Split('-');
-            if (parts.Length == 2 && int.TryParse(parts[1], out int taskId))
-            {
-                var actionType = parts[0];
-                if (actionType == "toggle")
-                {
-                    await TaskService.ToggleTaskCompletionAsync(taskId, UserId);
-                }
-                else if (actionType == "delete")
-                {
-                    await TaskService.DeleteTaskAsync(taskId, UserId);
-                }
-            }
-        }
 
         if (!string.IsNullOrEmpty(UserId))
         {

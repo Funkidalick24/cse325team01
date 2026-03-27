@@ -1,0 +1,37 @@
+@page "/tasks/toggle"
+@using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
+@using TodoApp.Models
+@using TodoApp.Services
+@attribute [Authorize]
+@inject ITaskService TaskService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+
+@code {
+    [CascadingParameter]
+    public HttpContext? HttpContext { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (HttpContext != null && HttpMethods.IsPost(HttpContext.Request.Method))
+        {
+            if (HttpContext?.Request.Form.TryGetValue("Id", out var idValues) == true && int.TryParse(idValues.First(), out var id))
+            {
+                var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+                var userId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    await TaskService.ToggleTaskCompletionAsync(id, userId);
+                }
+            }
+            NavigationManager.NavigateTo("/tasks");
+        }
+        else
+        {
+            NavigationManager.NavigateTo("/tasks");
+        }
+    }
+}
