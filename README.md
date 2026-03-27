@@ -26,7 +26,7 @@ A simple Task Manager / To-Do List web application using C# .NET Core with Blazo
    dotnet run
    ```
    *This command will automatically build the application and start a local server.*
-3. Open a web browser and navigate to the URL indicated in the terminal (typically `http://localhost:5000` or `https://localhost:5001`).
+3. Open a web browser and navigate to the URL indicated in the terminal (typically `http://localhost:5249`).
 4. Click "Register" to create a new account and begin creating tasks.
 
 *Note: The database will be created automatically on the first run using Entity Framework Migrations.*
