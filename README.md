@@ -1,4 +1,4 @@
-# TaskFlow - Simple Task Manager
+j# TaskFlow - Simple Task Manager
 
 ## Project Description
 A simple Task Manager / To-Do List web application using C# .NET Core with Blazor. It uses pure Static Server-Side Rendering (SSR) for a clean, minimalist application.

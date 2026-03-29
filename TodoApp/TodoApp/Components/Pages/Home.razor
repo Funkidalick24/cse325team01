@@ -1,56 +1,133 @@
 @page "/"
-@using Microsoft.AspNetCore.Components.Authorization
-@inject AuthenticationStateProvider AuthenticationStateProvider
-@inject NavigationManager NavigationManager
 
 <PageTitle>Home</PageTitle>
 
-<div class="hero-section">
-    <div class="hero-content">
-        <h1>Welcome to TodoApp</h1>
-        <p>A simple, polished, and minimalist tool for busy people to manage their daily tasks.</p>
-
-        <AuthorizeView>
-            <Authorized>
-                <div class="hero-buttons">
-                    <a href="/tasks" class="btn btn-primary btn-lg">Go to My Tasks</a>
+<div class="landing">
+    <section id="product" class="landing-hero">
+        <div class="landing-hero-grid">
+            <div class="landing-hero-copy">
+                <div class="landing-badge">
+                    <span class="landing-badge-dot" aria-hidden="true"></span>
+                    High Performance Workspace
                 </div>
-            </Authorized>
-            <NotAuthorized>
-                <div class="hero-buttons">
-                    <a href="/login" class="btn btn-primary btn-lg">Login</a>
-                    <a href="/register" class="btn btn-outline-primary btn-lg">Register</a>
-                </div>
-            </NotAuthorized>
-        </AuthorizeView>
-    </div>
 
-    <div class="features-preview mt-5">
-        <div class="feature-item">
-            <div class="feature-icon">✨</div>
-            <h3>Simple & Clean</h3>
-            <p>A minimalist design with no clutter. Focus only on what matters.</p>
+                <h1 class="landing-title">
+                    Architecting <span class="landing-title-accent">Momentum.</span>
+                </h1>
+                <p class="landing-subtitle">
+                    A curated environment for precision task management—secure sign-in, fast dashboards, and editorial-level clarity.
+                </p>
+
+                <AuthorizeView>
+                    <Authorized>
+                        <div class="landing-cta">
+                            <a class="btn btn-primary btn-lg" href="/tasks">Open Dashboard</a>
+                            <a class="btn btn-outline-secondary btn-lg" href="/tasks/add">Add a Task</a>
+                        </div>
+                    </Authorized>
+                    <NotAuthorized>
+                        <div class="landing-cta">
+                            <a class="btn btn-primary btn-lg" href="/register">Start Building</a>
+                            <a class="btn btn-outline-secondary btn-lg" href="/login">Login</a>
+                        </div>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </div>
+
+            <div class="landing-hero-visual" aria-hidden="true">
+                <div class="landing-visual-stack">
+                    <div class="landing-card landing-card-overdue">
+                        <div class="landing-card-row">
+                            <span class="landing-chip landing-chip-overdue">OVERDUE</span>
+                            <span class="landing-card-meta">Yesterday</span>
+                        </div>
+                        <div class="landing-card-title">Finalize project milestone</div>
+                        <div class="landing-card-bar"><span></span></div>
+                    </div>
+
+                    <div class="landing-card landing-card-primary">
+                        <div class="landing-card-row">
+                            <span class="landing-chip landing-chip-pending">PENDING</span>
+                            <span class="landing-card-meta">Today, 5:00 PM</span>
+                        </div>
+                        <div class="landing-card-title">Team sync — weekly priorities</div>
+                    </div>
+
+                    <div class="landing-card landing-card-complete">
+                        <div class="landing-card-row">
+                            <span class="landing-chip landing-chip-complete">COMPLETED</span>
+                            <span class="landing-card-meta">✓</span>
+                        </div>
+                        <div class="landing-card-title landing-card-title-muted">Draft documentation</div>
+                    </div>
+                </div>
+                <div class="landing-glow landing-glow-1"></div>
+                <div class="landing-glow landing-glow-2"></div>
+            </div>
         </div>
-        <div class="feature-item">
-            <div class="feature-icon">🏷️</div>
-            <h3>Categorize</h3>
-            <p>Organize your tasks easily with predefined categories and colors.</p>
+    </section>
+
+    <section id="features" class="landing-section">
+        <div class="landing-section-header">
+            <div class="landing-kicker">Intelligent Sorting</div>
+            <h2 class="landing-h2">Tasks that demand attention float to the top.</h2>
+            <p class="landing-p">Overdue items stand out, categories stay organized, and priority stays visible—without clutter.</p>
         </div>
-        <div class="feature-item">
-            <div class="feature-icon">⚡</div>
-            <h3>Fast & Responsive</h3>
-            <p>Works great on desktop and mobile devices.</p>
+
+        <div class="landing-feature-grid">
+            <div class="landing-feature">
+                <div class="landing-feature-icon">🛡️</div>
+                <h3 class="landing-h3">Secure Identity</h3>
+                <p class="landing-p-sm">Registration, login, and sessions powered by ASP.NET Core Identity.</p>
+            </div>
+            <div class="landing-feature">
+                <div class="landing-feature-icon">⚡</div>
+                <h3 class="landing-h3">Fast Dashboard</h3>
+                <p class="landing-p-sm">Quick scanning of Pending vs Completed, with smooth interactions.</p>
+            </div>
+            <div class="landing-feature">
+                <div class="landing-feature-icon">🏷️</div>
+                <h3 class="landing-h3">Category Clustering</h3>
+                <p class="landing-p-sm">Filter by category and keep your day grouped the way you think.</p>
+            </div>
+            <div class="landing-feature">
+                <div class="landing-feature-icon">✅</div>
+                <h3 class="landing-h3">One‑Click Controls</h3>
+                <p class="landing-p-sm">Toggle completion, edit, or delete tasks directly from the card.</p>
+            </div>
         </div>
-    </div>
+    </section>
+
+    <section id="about" class="landing-section landing-section-muted">
+        <div class="landing-section-header">
+            <div class="landing-kicker">Editorial Clarity</div>
+            <h2 class="landing-h2">Minimal UI. Maximum momentum.</h2>
+            <p class="landing-p">Designed around spacing, typography, and clear states so your attention stays on the work.</p>
+        </div>
+
+        <div class="landing-cta-wide">
+            <AuthorizeView>
+                <Authorized>
+                    <a class="btn btn-primary btn-lg" href="/tasks">Go to Tasks</a>
+                </Authorized>
+                <NotAuthorized>
+                    <a class="btn btn-primary btn-lg" href="/register">Create Free Account</a>
+                </NotAuthorized>
+            </AuthorizeView>
+        </div>
+    </section>
+
+    <footer class="landing-footer">
+        <div class="landing-footer-inner">
+            <div class="landing-footer-brand">
+                <div class="landing-footer-name">Kinetic</div>
+                <div class="landing-footer-note">Built for momentum.</div>
+            </div>
+            <div class="landing-footer-links">
+                <a class="landing-footer-link" href="/#product">Product</a>
+                <a class="landing-footer-link" href="/#features">Features</a>
+                <a class="landing-footer-link" href="/#about">About</a>
+            </div>
+        </div>
+    </footer>
 </div>
-
-@code {
-    protected override async Task OnInitializedAsync()
-    {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        if (authState.User.Identity?.IsAuthenticated ?? false)
-        {
-            NavigationManager.NavigateTo("/tasks");
-        }
-    }
-}

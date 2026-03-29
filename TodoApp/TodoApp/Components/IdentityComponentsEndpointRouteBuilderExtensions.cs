@@ -43,18 +43,31 @@ namespace TodoApp.Components
             accountGroup.MapPost("/Register", async (
                 UserManager<ApplicationUser> userManager,
                 SignInManager<ApplicationUser> signInManager,
+                [FromForm] string name,
                 [FromForm] string email,
                 [FromForm] string password,
                 [FromForm] string confirmPassword,
                 [FromForm] string returnUrl) =>
             {
+                var trimmedName = (name ?? string.Empty).Trim();
+                if (string.IsNullOrWhiteSpace(trimmedName))
+                {
+                    return TypedResults.LocalRedirect("~/register?error=Name is required.");
+                }
+
+                if (!string.Equals(password, confirmPassword, StringComparison.Ordinal))
+                {
+                    return TypedResults.LocalRedirect("~/register?error=Passwords do not match.");
+                }
+
                 var user = new ApplicationUser { UserName = email, Email = email };
                 var result = await userManager.CreateAsync(user, password);
 
                 if (result.Succeeded)
                 {
+                    await userManager.AddClaimAsync(user, new Claim(ClaimTypes.GivenName, trimmedName));
                     await signInManager.SignInAsync(user, isPersistent: true);
-                    return TypedResults.LocalRedirect($"~/{returnUrl ?? "tasks"}");
+                    return TypedResults.LocalRedirect($"~/{returnUrl ?? string.Empty}");
                 }
 
                 // On failure, go back to register with error

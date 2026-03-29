@@ -5,72 +5,152 @@
 @using TodoApp.Models
 @using TodoApp.Models.Enums
 @using TodoApp.Services
-@using TodoApp.Components.Pages.Shared
 @attribute [Authorize]
 @inject ITaskService TaskService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Dashboard - Tasks</PageTitle>
 
-<div class="dashboard-header">
-    <div class="dashboard-title">
-        <h2>My Tasks</h2>
-        <div class="dashboard-stats">
-            <span class="stat-badge">Total: @TasksList.Count</span>
-            <span class="stat-badge stat-pending">Pending: @PendingTasks.Count</span>
-            <span class="stat-badge stat-completed">Completed: @CompletedTasks.Count</span>
+<div class="dashboard-shell">
+    <header class="dashboard-hero">
+        <div class="dashboard-hero-copy">
+            <h1 class="dashboard-greeting">@Greeting, @DisplayName.</h1>
+            <p class="dashboard-subtitle">@HeroSubtitle</p>
+        </div>
+        <a href="/tasks/add" class="btn btn-primary btn-lg dashboard-cta">+ Create New Task</a>
+    </header>
+
+    <section class="metric-grid" aria-label="Task metrics">
+        <div class="metric-card">
+            <div class="metric-label">Total Tasks</div>
+            <div class="metric-value">@FormatCount(TasksList.Count)</div>
+        </div>
+        <div class="metric-card metric-primary">
+            <div class="metric-label">Pending</div>
+            <div class="metric-value">@FormatCount(PendingTasks.Count)</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">Completed</div>
+            <div class="metric-value">@FormatCount(CompletedTasks.Count)</div>
+        </div>
+        <div class="metric-card metric-warning">
+            <div class="metric-label">Overdue</div>
+            <div class="metric-value">@FormatCount(OverdueCount)</div>
+        </div>
+    </section>
+
+    <div class="dashboard-grid">
+        <aside class="dashboard-rail dashboard-sidebar" aria-label="Task navigation sidebar">
+            <div class="sidebar-brand-block">
+                <div class="sidebar-brand-name">Kinetic</div>
+                <div class="sidebar-brand-subtitle">Productivity Engine</div>
+            </div>
+
+            <a href="/tasks/add" class="btn btn-primary sidebar-create-btn">+ Create Task</a>
+
+            <nav class="sidebar-nav-links" aria-label="Task sections">
+                <a class="sidebar-link @(IsViewActive("inbox") ? "active" : "")" href="@BuildViewHref("inbox")">
+                    <span class="sidebar-link-icon" aria-hidden="true">□</span>
+                    <span>Inbox</span>
+                </a>
+                <a class="sidebar-link @(IsViewActive("today") ? "active" : "")" href="@BuildViewHref("today")">
+                    <span class="sidebar-link-icon" aria-hidden="true">◷</span>
+                    <span>Today</span>
+                </a>
+                <a class="sidebar-link @(IsViewActive("upcoming") ? "active" : "")" href="@BuildViewHref("upcoming")">
+                    <span class="sidebar-link-icon" aria-hidden="true">↗</span>
+                    <span>Upcoming</span>
+                </a>
+                <a class="sidebar-link @(IsFiltersView ? "active" : "")" href="/tasks">
+                    <span class="sidebar-link-icon" aria-hidden="true">☰</span>
+                    <span>Filters</span>
+                </a>
+                <a class="sidebar-link @(IsViewActive("archive") ? "active" : "")" href="@BuildViewHref("archive")">
+                    <span class="sidebar-link-icon" aria-hidden="true">⌄</span>
+                    <span>Archive</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-bottom-links">
+                <a class="sidebar-link" href="/tasks">
+                    <span class="sidebar-link-icon" aria-hidden="true">⚙</span>
+                    <span>Settings</span>
+                </a>
+                <a class="sidebar-link" href="/tasks">
+                    <span class="sidebar-link-icon" aria-hidden="true">?</span>
+                    <span>Help</span>
+                </a>
+            </div>
+        </aside>
+
+        <div class="dashboard-main">
+            <div class="dashboard-mobile-filter"></div>
+
+            <div class="tasks-container">
+                @if (IsLoading)
+                {
+                    <div class="skeleton-grid" aria-busy="true" aria-live="polite" aria-label="Loading tasks">
+                        <div class="skeleton-card"></div>
+                        <div class="skeleton-card"></div>
+                        <div class="skeleton-card"></div>
+                        <div class="skeleton-card"></div>
+                        <div class="skeleton-card"></div>
+                        <div class="skeleton-card"></div>
+                    </div>
+                }
+                else if (!FilteredTasks.Any())
+                {
+                    <div class="empty-state">
+                        <div class="empty-icon">📝</div>
+                        <h3>No tasks found</h3>
+                        <p>You have no tasks matching the selected filter.</p>
+                        <a href="/tasks/add" class="btn btn-primary mt-3">Create your first task</a>
+                    </div>
+                }
+                else
+                {
+                    @if (FilteredPendingTasks.Any())
+                    {
+                        <section class="task-group">
+                            <div class="task-group-head">
+                                <h2 class="task-group-title">@PrimaryTaskGroupTitle</h2>
+                                <span class="task-count-pill">@FilteredPendingTasks.Count() Tasks</span>
+                            </div>
+                            <div class="task-list">
+                                @foreach (var task in FilteredPendingTasks)
+                                {
+                                    <TaskCard Task="@task" />
+                                }
+                            </div>
+                        </section>
+                    }
+
+                    @if (FilteredCompletedTasks.Any())
+                    {
+                        <section class="task-group mt-4">
+                            <div class="task-group-head">
+                                <h2 class="task-group-title text-muted">@(IsArchiveView ? "Archive" : "Recently Completed")</h2>
+                            </div>
+                            <div class="task-list task-list-compact">
+                                @foreach (var task in IsArchiveView ? FilteredCompletedTasks : FilteredCompletedTasks.Take(4))
+                                {
+                                    <TaskCard Task="@task" Compact="true" />
+                                }
+                            </div>
+                        </section>
+                    }
+                }
+            </div>
         </div>
     </div>
-    <div class="dashboard-actions">
-        <a href="/tasks/add" class="btn btn-primary">+ Add New Task</a>
-    </div>
-</div>
-
-<CategoryFilter SelectedCategory="@SelectedCategory" />
-
-<div class="tasks-container">
-    @if (!FilteredTasks.Any())
-    {
-        <div class="empty-state">
-            <div class="empty-icon">📝</div>
-            <h3>No tasks found</h3>
-            <p>You have no tasks matching the selected filter.</p>
-            <a href="/tasks/add" class="btn btn-primary mt-3">Create your first task</a>
-        </div>
-    }
-    else
-    {
-        @if (FilteredPendingTasks.Any())
-        {
-            <div class="task-group">
-                <h3 class="task-group-title">Pending Tasks</h3>
-                <div class="task-list">
-                    @foreach (var task in FilteredPendingTasks)
-                    {
-                        <TaskCard Task="@task" />
-                    }
-                </div>
-            </div>
-        }
-
-        @if (FilteredCompletedTasks.Any())
-        {
-            <div class="task-group mt-4">
-                <h3 class="task-group-title text-muted">Completed Tasks</h3>
-                <div class="task-list opacity-75">
-                    @foreach (var task in FilteredCompletedTasks)
-                    {
-                        <TaskCard Task="@task" />
-                    }
-                </div>
-            </div>
-        }
-    }
 </div>
 
 @code {
     [SupplyParameterFromQuery(Name = "category")]
     public string? SelectedCategoryString { get; set; }
+
+    [SupplyParameterFromQuery(Name = "view")]
+    public string? SelectedView { get; set; }
 
     private TaskCategory? SelectedCategory => Enum.TryParse<TaskCategory>(SelectedCategoryString, true, out var parsedCategory)
         ? parsedCategory
@@ -79,13 +159,104 @@
     private List<TaskItem> TasksList { get; set; } = new();
     private bool IsLoading { get; set; } = true;
     private string UserId { get; set; } = string.Empty;
+    private string DisplayName { get; set; } = "there";
 
     private List<TaskItem> PendingTasks => TasksList.Where(t => !t.IsCompleted).ToList();
     private List<TaskItem> CompletedTasks => TasksList.Where(t => t.IsCompleted).ToList();
 
+    private int OverdueCount => PendingTasks.Count(t => t.DueDate.HasValue && t.DueDate.Value.Date < DateTime.UtcNow.Date);
+    private int DueTodayHighPriorityCount => PendingTasks.Count(t => t.Priority == Priority.High && t.DueDate.HasValue && t.DueDate.Value.Date == DateTime.UtcNow.Date);
+
+    private int CompletionPercent => TasksList.Count == 0 ? 0 : (int)Math.Round((CompletedTasks.Count / (double)TasksList.Count) * 100.0);
+    private int GoalTarget => Math.Max(40, TasksList.Count);
+    private int GoalPercent => GoalTarget == 0 ? 0 : Math.Min(100, (int)Math.Round((CompletedTasks.Count / (double)GoalTarget) * 100.0));
+    private int InboxCount => PendingTasks.Count;
+    private int TodayCount => PendingTasks.Count(t => t.DueDate.HasValue && t.DueDate.Value.Date == TodayUtc);
+    private int UpcomingCount => PendingTasks.Count(t => t.DueDate.HasValue && t.DueDate.Value.Date > TodayUtc);
+    private int ArchiveCount => CompletedTasks.Count;
+    private bool IsArchiveView => string.Equals(SelectedView, "archive", StringComparison.OrdinalIgnoreCase);
+    private bool IsTodayView => string.Equals(SelectedView, "today", StringComparison.OrdinalIgnoreCase);
+    private bool IsUpcomingView => string.Equals(SelectedView, "upcoming", StringComparison.OrdinalIgnoreCase);
+    private bool IsFiltersView => SelectedCategory.HasValue;
+    private bool IsInboxView => string.IsNullOrWhiteSpace(SelectedView) || string.Equals(SelectedView, "inbox", StringComparison.OrdinalIgnoreCase);
+    private DateTime TodayUtc => DateTime.UtcNow.Date;
+    private string PrimaryTaskGroupTitle
+        => IsTodayView
+            ? "Today"
+            : IsUpcomingView
+                ? "Upcoming"
+                : IsArchiveView
+                    ? "Completed"
+                    : "Pending Focus";
+
+    private string Greeting
+    {
+        get
+        {
+            var hour = DateTime.Now.Hour;
+            if (hour < 12) return "Good morning";
+            if (hour < 18) return "Good afternoon";
+            return "Good evening";
+        }
+    }
+
+    private string HeroSubtitle
+        => DueTodayHighPriorityCount > 0
+            ? $"You have {DueTodayHighPriorityCount} high-priority task{(DueTodayHighPriorityCount == 1 ? "" : "s")} requiring immediate attention today."
+            : (OverdueCount > 0
+                ? $"You have {OverdueCount} overdue task{(OverdueCount == 1 ? "" : "s")} that need attention."
+                : "Your inbox is clear—add a task and keep moving.");
+
+    private string FormatCount(int count) => count.ToString("00");
+    private bool IsViewActive(string view)
+        => string.Equals(view, "inbox", StringComparison.OrdinalIgnoreCase)
+            ? IsInboxView
+            : string.Equals(SelectedView, view, StringComparison.OrdinalIgnoreCase);
+
+    private string BuildViewHref(string view)
+    {
+        if (string.Equals(view, "inbox", StringComparison.OrdinalIgnoreCase))
+        {
+            return SelectedCategory.HasValue
+                ? $"/tasks?category={SelectedCategory.Value.ToString().ToLowerInvariant()}"
+                : "/tasks";
+        }
+
+        return SelectedCategory.HasValue
+            ? $"/tasks?view={view}&category={SelectedCategory.Value.ToString().ToLowerInvariant()}"
+            : $"/tasks?view={view}";
+    }
+
+    private string BuildCategoryHref(TaskCategory category)
+    {
+        var categoryValue = category.ToString().ToLowerInvariant();
+        return IsInboxView
+            ? $"/tasks?category={categoryValue}"
+            : $"/tasks?view={SelectedView?.ToLowerInvariant()}&category={categoryValue}";
+    }
+
+    private static string GetCategoryLabel(TaskCategory category)
+        => category switch
+        {
+            TaskCategory.Work => "Product Design",
+            TaskCategory.Shopping => "Operations",
+            TaskCategory.Health => "Marketing",
+            TaskCategory.Personal => "Personal",
+            _ => "General"
+        };
+
+    private IEnumerable<TaskItem> ViewFilteredTasks
+        => IsArchiveView
+            ? CompletedTasks
+            : IsTodayView
+                ? PendingTasks.Where(t => t.DueDate.HasValue && t.DueDate.Value.Date == TodayUtc)
+                : IsUpcomingView
+                    ? PendingTasks.Where(t => t.DueDate.HasValue && t.DueDate.Value.Date > TodayUtc)
+                    : PendingTasks;
+
     private IEnumerable<TaskItem> FilteredTasks => SelectedCategory.HasValue
-        ? TasksList.Where(t => t.Category == SelectedCategory.Value)
-        : TasksList;
+        ? ViewFilteredTasks.Where(t => t.Category == SelectedCategory.Value)
+        : ViewFilteredTasks;
 
     private IEnumerable<TaskItem> FilteredPendingTasks => FilteredTasks.Where(t => !t.IsCompleted)
         .OrderByDescending(t => t.DueDate.HasValue && t.DueDate.Value.Date < DateTime.UtcNow.Date) // Overdue first
@@ -97,12 +268,21 @@
 
     protected override async Task OnInitializedAsync()
     {
+        IsLoading = true;
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         UserId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+        DisplayName = authState.User.Identity?.Name ?? "there";
 
-        if (!string.IsNullOrEmpty(UserId))
+        try
         {
-            TasksList = await TaskService.GetTasksAsync(UserId);
+            if (!string.IsNullOrEmpty(UserId))
+            {
+                TasksList = await TaskService.GetTasksAsync(UserId);
+            }
+        }
+        finally
+        {
+            IsLoading = false;
         }
     }
 }

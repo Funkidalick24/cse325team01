@@ -1,57 +1,127 @@
 @using TodoApp.Models
 @using TodoApp.Models.Enums
 
-<div class="task-card @(Task.IsCompleted ? "completed" : "")">
-    <div class="task-card-header">
-        <div class="task-title-group d-flex align-items-center">
-            <form method="post" action="/api/tasks/toggle/@Task.Id" class="m-0 p-0 me-2 d-flex align-items-center">
+@if (Compact)
+{
+    <article class="task-card task-card-compact @(Task.IsCompleted ? "completed" : "")">
+        <div class="task-compact-check">
+            <form method="post" action="/api/tasks/toggle/@Task.Id" class="m-0 p-0">
                 <AntiforgeryToken />
-                <button type="submit" class="btn-icon task-checkbox-btn p-0 m-0 d-flex align-items-center" style="width: 1.25rem; height: 1.25rem; border: 1px solid #ced4da; border-radius: 4px; background: @(Task.IsCompleted ? "var(--primary-color)" : "white"); justify-content: center;">
-                    @if(Task.IsCompleted)
+                <button type="submit" class="btn-icon task-checkbox-btn" aria-label="@(Task.IsCompleted ? "Mark task as not completed" : "Mark task as completed")">
+                    @if (Task.IsCompleted)
                     {
-                        <span style="color: white; font-size: 0.8rem;">✓</span>
+                        <span class="task-checkbox-check" aria-hidden="true">✓</span>
                     }
                 </button>
             </form>
+        </div>
+
+        <div class="task-compact-content">
             <h4 class="task-title mb-0 @(Task.IsCompleted ? "text-strikethrough text-muted" : "")">@Task.Title</h4>
-        </div>
-        <div class="task-actions d-flex align-items-center">
-            <a href="/tasks/edit/@Task.Id" class="btn-icon btn-edit text-decoration-none me-2" title="Edit">✏️</a>
-            <form method="post" action="/api/tasks/delete/@Task.Id" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this task?');">
-                <AntiforgeryToken />
-                <button type="submit" class="btn-icon btn-delete" title="Delete">🗑️</button>
-            </form>
-        </div>
-    </div>
-
-    @if (!string.IsNullOrEmpty(Task.Description))
-    {
-        <p class="task-description text-muted">@Task.Description</p>
-    }
-
-    <div class="task-footer">
-        <div class="task-badges">
-            <span class="badge badge-category category-@Task.Category.ToString().ToLower()">
-                @Task.Category.ToString()
-            </span>
-            <span class="badge badge-priority priority-@Task.Priority.ToString().ToLower()">
-                @Task.Priority.ToString() Priority
-            </span>
+            <div class="task-compact-meta">Completed @GetCompletedLabel()</div>
         </div>
 
-        @if (Task.DueDate.HasValue)
-        {
-            <div class="task-due-date @(IsOverdue ? "text-danger fw-bold" : "text-muted")">
-                📅 @FormatDueDate(Task.DueDate.Value)
+        <a href="/tasks/edit/@Task.Id" class="task-compact-link" aria-label="Edit task">Edit</a>
+    </article>
+}
+else
+{
+    <article class="task-card task-card-focus @(GetCardAccentClass()) @(Task.IsCompleted ? "completed" : "")">
+        <div class="task-card-header">
+            <div class="task-title-group d-flex align-items-start">
+                <form method="post" action="/api/tasks/toggle/@Task.Id" class="m-0 p-0 me-2 d-flex align-items-center">
+                    <AntiforgeryToken />
+                    <button type="submit" class="btn-icon task-checkbox-btn p-0 m-0 d-flex align-items-center" aria-label="@(Task.IsCompleted ? "Mark task as not completed" : "Mark task as completed")">
+                        @if (Task.IsCompleted)
+                        {
+                            <span class="task-checkbox-check" aria-hidden="true">✓</span>
+                        }
+                    </button>
+                </form>
+                <div>
+                    <div class="task-title-line">
+                        <h4 class="task-title mb-0 @(Task.IsCompleted ? "text-strikethrough text-muted" : "")">@Task.Title</h4>
+                        @if (IsOverdue)
+                        {
+                            <span class="task-flag-overdue">Overdue</span>
+                        }
+                    </div>
+                    @if (!string.IsNullOrEmpty(Task.Description))
+                    {
+                        <p class="task-description text-muted">@Task.Description</p>
+                    }
+                </div>
             </div>
-        }
-    </div>
-</div>
+        </div>
+
+        <div class="task-footer">
+            @if (Task.DueDate.HasValue)
+            {
+                <span class="task-footer-item @(IsOverdue ? "is-alert" : "")">@FormatDueDate(Task.DueDate.Value)</span>
+            }
+            <span class="task-footer-item">@GetCategoryLabel()</span>
+            <span class="task-footer-item">@Task.Priority Priority</span>
+        </div>
+    </article>
+}
 
 @code {
     [Parameter] public TaskItem Task { get; set; } = null!;
+    [Parameter] public bool Compact { get; set; }
 
     private bool IsOverdue => !Task.IsCompleted && Task.DueDate.HasValue && Task.DueDate.Value.Date < DateTime.UtcNow.Date;
+
+    private string GetCardAccentClass()
+    {
+        if (IsOverdue)
+        {
+            return "task-card-overdue";
+        }
+
+        return Task.Priority switch
+        {
+            Priority.High => "task-card-high",
+            Priority.Medium => "task-card-medium",
+            _ => "task-card-low"
+        };
+    }
+
+    private string GetCompletedLabel()
+    {
+        if (!Task.CompletedAt.HasValue)
+        {
+            return "recently";
+        }
+
+        var elapsed = DateTime.UtcNow - Task.CompletedAt.Value;
+
+        if (elapsed.TotalHours < 1)
+        {
+            return "just now";
+        }
+
+        if (elapsed.TotalHours < 24)
+        {
+            return $"{(int)elapsed.TotalHours} hour{((int)elapsed.TotalHours == 1 ? "" : "s")} ago";
+        }
+
+        if (elapsed.TotalDays < 2)
+        {
+            return "yesterday";
+        }
+
+        return Task.CompletedAt.Value.ToString("MMM dd");
+    }
+
+    private string GetCategoryLabel()
+        => Task.Category switch
+        {
+            TaskCategory.Work => "Product Design",
+            TaskCategory.Shopping => "Operations",
+            TaskCategory.Health => "Marketing",
+            TaskCategory.Personal => "Personal",
+            _ => "General"
+        };
 
     private string FormatDueDate(DateTime date)
     {
@@ -61,7 +131,9 @@
         if (date.Date == today.AddDays(1))
             return "Tomorrow";
         if (date.Date == today.AddDays(-1))
-            return "Yesterday";
+            return "Due Yesterday";
+        if (date.Date < today)
+            return $"Due {date:MMM dd}";
 
         return date.ToString("MMM dd, yyyy");
     }

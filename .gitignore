@@ -1,3 +1,14 @@
 TodoApp/TodoApp/obj/
 TodoApp/TodoApp/bin/
 TestIdentityApp/
+*.dll
+*.db
+*.so
+*.dylib
+TodoApp/TodoApp/bin_temp/
+.dotnet/
+*.db-shm
+*.db-wal
+.env
+.env.*
+!.env.example

@@ -1,28 +1,62 @@
 @inherits LayoutComponentBase
 @using Microsoft.AspNetCore.Components.Authorization
-@inject AuthenticationStateProvider AuthenticationStateProvider
+@using System.Security.Claims
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<div class="app-shell">
+    <header class="top-nav">
+        <div class="top-nav-inner">
+            <a class="top-brand" href="/">Kinetic</a>
+
+            <nav class="top-links" aria-label="Primary">
+                <a class="top-link" href="/#product">Product</a>
+                <a class="top-link" href="/#features">Features</a>
+                <a class="top-link" href="/#about">About</a>
+            </nav>
+
+            <div class="top-actions">
+                <button id="theme-toggle" type="button" class="btn btn-sm btn-outline-secondary theme-toggle-btn" onclick="window.todoTheme?.toggle?.()" aria-pressed="false" aria-label="Switch to dark mode">
+                    <span class="theme-toggle-icon theme-icon-sun" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" role="img" focusable="false">
+                            <path d="M12 5.5a1 1 0 0 1 1 1v1.1a1 1 0 1 1-2 0V6.5a1 1 0 0 1 1-1Zm0 10.9a1 1 0 0 1 1 1v1.1a1 1 0 1 1-2 0v-1.1a1 1 0 0 1 1-1Zm6.5-5.4a1 1 0 0 1 1 1 1 1 0 0 1-1 1h-1.1a1 1 0 1 1 0-2h1.1ZM7.6 12a1 1 0 0 1-1 1H5.5a1 1 0 1 1 0-2h1.1a1 1 0 0 1 1 1Zm8.11-4.11a1 1 0 0 1 1.41 0l.78.78a1 1 0 1 1-1.41 1.41l-.78-.78a1 1 0 0 1 0-1.41Zm-8.6 8.6a1 1 0 0 1 1.41 0l.78.78a1 1 0 1 1-1.41 1.41l-.78-.78a1 1 0 0 1 0-1.41Zm10.24 1.41a1 1 0 0 1-1.41 0l-.78-.78a1 1 0 1 1 1.41-1.41l.78.78a1 1 0 0 1 0 1.41Zm-8.6-8.6a1 1 0 0 1-1.41 0l-.78-.78a1 1 0 1 1 1.41-1.41l.78.78a1 1 0 0 1 0 1.41ZM12 9a3 3 0 1 1 0 6 3 3 0 0 1 0-6Z"/>
+                        </svg>
+                    </span>
+                    <span class="theme-toggle-icon theme-icon-moon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" role="img" focusable="false">
+                            <path d="M14.87 2.3a1 1 0 0 1 .95 1.34A8 8 0 1 0 20.36 14a1 1 0 0 1 1.34.95A10 10 0 1 1 13.92 2.2a1 1 0 0 1 .95.1Z"/>
+                        </svg>
+                    </span>
+                    <span class="visually-hidden theme-toggle-text">Switch to dark mode</span>
+                </button>
+
+                <div class="top-divider" aria-hidden="true"></div>
+
+                <AuthorizeView>
+                    <Authorized>
+                        <span class="user-greeting">Welcome, @GetDisplayName(context.User)!</span>
+                        <details class="profile-menu">
+                            <summary class="profile-trigger" aria-label="Open profile menu">
+                                <span class="profile-avatar">@GetInitial(context.User)</span>
+                            </summary>
+                            <div class="profile-dropdown" role="menu" aria-label="Profile actions">
+                                <a href="/tasks" class="profile-item" role="menuitem">Dashboard</a>
+                                <form action="Account/Logout" method="post" @formname="LogoutForm">
+                                    <AntiforgeryToken />
+                                    <input type="hidden" name="ReturnUrl" value="" />
+                                    <button type="submit" class="profile-item profile-item-button" role="menuitem">Logout</button>
+                                </form>
+                            </div>
+                        </details>
+                    </Authorized>
+                    <NotAuthorized>
+                        <a class="btn btn-sm btn-link text-decoration-none" href="/login">Login</a>
+                        <a class="btn btn-sm btn-primary" href="/register">Register</a>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </div>
+        </div>
+    </header>
 
     <main>
-        <div class="top-row px-4 auth-status">
-            <AuthorizeView>
-                <Authorized>
-                    <div class="d-flex align-items-center gap-3">
-                        <span class="user-greeting">Hello, @context.User.Identity?.Name!</span>
-                        <form action="Account/Logout" method="post" class="d-inline" @formname="LogoutForm">
-                            <AntiforgeryToken />
-                            <input type="hidden" name="ReturnUrl" value="" />
-                            <button type="submit" class="btn btn-link nav-link px-3 text-primary border-0 bg-transparent">Logout</button>
-                        </form>
-                    </div>
-                </Authorized>
-            </AuthorizeView>
-        </div>
-
         <article class="content px-4">
             @Body
         </article>
@@ -34,3 +68,31 @@
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+
+@code {
+    private static string GetDisplayName(ClaimsPrincipal user)
+    {
+        var name = user.FindFirstValue(ClaimTypes.GivenName);
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            return name;
+        }
+
+        var identityName = user.Identity?.Name;
+        if (!string.IsNullOrWhiteSpace(identityName))
+        {
+            var atIndex = identityName.IndexOf('@');
+            return atIndex > 0 ? identityName[..atIndex] : identityName;
+        }
+
+        return "User";
+    }
+
+    private static string GetInitial(ClaimsPrincipal user)
+    {
+        var displayName = GetDisplayName(user);
+        return string.IsNullOrWhiteSpace(displayName)
+            ? "U"
+            : displayName[..1].ToUpperInvariant();
+    }
+}

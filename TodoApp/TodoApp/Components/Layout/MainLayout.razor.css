@@ -1,78 +1,209 @@
-.page {
-    position: relative;
+.app-shell {
+    min-height: 100vh;
+}
+
+.top-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: color-mix(in srgb, var(--surface-1) 82%, transparent);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.top-nav-inner {
+    height: 4.25rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.top-brand {
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--text-color);
+    text-decoration: none;
+    font-size: 1.35rem;
+}
+
+.top-links {
+    display: none;
+    gap: 1.25rem;
+    align-items: center;
+}
+
+.top-link {
+    color: var(--muted-text);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.top-link:hover {
+    color: var(--text-color);
+}
+
+.top-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.theme-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border-radius: 0.5rem;
+}
+
+.theme-toggle-icon {
+    width: 1rem;
+    height: 1rem;
+    display: inline-block;
+    line-height: 0;
+}
+
+.theme-toggle-icon svg {
+    width: 100%;
+    height: 100%;
+    fill: currentColor;
+}
+
+.theme-icon-moon {
+    display: none;
+}
+
+.theme-toggle-btn[aria-pressed="true"] .theme-icon-sun {
+    display: none;
+}
+
+.theme-toggle-btn[aria-pressed="true"] .theme-icon-moon {
+    display: inline-block;
+}
+
+.top-divider {
+    width: 1px;
+    height: 1.5rem;
+    background: var(--border-color);
+}
+
+.top-user {
+    display: none;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.user-greeting {
+    display: none;
+    font-weight: 600;
+    color: var(--muted-text);
+}
+
+.profile-menu {
+    position: relative;
+}
+
+.profile-menu summary {
+    list-style: none;
+}
+
+.profile-menu summary::-webkit-details-marker {
+    display: none;
+}
+
+.profile-trigger {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-2);
+    padding: 0;
+}
+
+.profile-avatar {
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-color);
+}
+
+.profile-dropdown {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 0.5rem);
+    min-width: 10rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    background: var(--surface-1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+    z-index: 200;
+}
+
+.profile-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0.65rem 0.8rem;
+    color: var(--text-color);
+    text-decoration: none;
+    background: transparent;
+    border: 0;
+    font-size: 0.92rem;
+}
+
+.profile-item:hover {
+    background: var(--surface-2);
+}
+
+.profile-item-button {
+    cursor: pointer;
 }
 
 main {
     flex: 1;
-}
-
-.sidebar {
-    background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
-}
-
-.top-row {
-    background-color: #f7f7f7;
-    border-bottom: 1px solid #d6d5d5;
-    justify-content: flex-end;
-    height: 3.5rem;
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    min-width: 0;
+    padding-top: 4.25rem;
 }
 
-    .top-row ::deep a, .top-row ::deep .btn-link {
-        white-space: nowrap;
-        margin-left: 1.5rem;
-        text-decoration: none;
-    }
-
-    .top-row ::deep a:hover, .top-row ::deep .btn-link:hover {
-        text-decoration: underline;
-    }
-
-    .top-row ::deep a:first-child {
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
+article.content {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+}
 
 @media (max-width: 640.98px) {
-    .top-row {
-        justify-content: space-between;
-    }
-
-    .top-row ::deep a, .top-row ::deep .btn-link {
-        margin-left: 0;
+    .top-nav-inner {
+        padding: 0 0.75rem;
     }
 }
 
 @media (min-width: 641px) {
-    .page {
-        flex-direction: row;
+    .top-links {
+        display: flex;
     }
 
-    .sidebar {
-        width: 250px;
-        height: 100vh;
-        position: sticky;
-        top: 0;
-    }
-
-    .top-row {
-        position: sticky;
-        top: 0;
-        z-index: 1;
-    }
-
-    .top-row.auth ::deep a:first-child {
-        flex: 1;
-        text-align: right;
-        width: 0;
-    }
-
-    .top-row, article {
-        padding-left: 2rem !important;
-        padding-right: 1.5rem !important;
+    .user-greeting {
+        display: inline-block;
     }
 }
 
