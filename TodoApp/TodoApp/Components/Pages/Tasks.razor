@@ -61,7 +61,7 @@
                     <span class="sidebar-link-icon" aria-hidden="true">↗</span>
                     <span>Upcoming</span>
                 </a>
-                <a class="sidebar-link @(IsFiltersView ? "active" : "")" href="/tasks">
+                <a class="sidebar-link @(IsFiltersView ? "active" : "")" href="@BuildViewHref("filters")">
                     <span class="sidebar-link-icon" aria-hidden="true">☰</span>
                     <span>Filters</span>
                 </a>
@@ -85,6 +85,67 @@
 
         <div class="dashboard-main">
             <div class="dashboard-mobile-filter"></div>
+            @if (IsFiltersView)
+            {
+                <section class="filters-panel" aria-label="Filters">
+                    <div class="filters-panel-head">
+                        <h2 class="filters-panel-title">Filters</h2>
+                        <a href="/tasks?view=filters" class="filter-btn text-decoration-none">Clear</a>
+                    </div>
+
+                    <div class="filters-group">
+                        <div class="filters-label">Status</div>
+                        <div class="filters-options">
+                            <a class="filter-btn text-decoration-none @(SelectedStatusValue == "all" ? "active" : "")" href="@BuildFilterHref(status: "all")">All</a>
+                            <a class="filter-btn text-decoration-none @(SelectedStatusValue == "pending" ? "active" : "")" href="@BuildFilterHref(status: "pending")">Pending</a>
+                            <a class="filter-btn text-decoration-none @(SelectedStatusValue == "completed" ? "active" : "")" href="@BuildFilterHref(status: "completed")">Completed</a>
+                        </div>
+                    </div>
+
+                    <div class="filters-group">
+                        <div class="filters-label">Priority</div>
+                        <div class="filters-options">
+                            <a class="filter-btn text-decoration-none @(SelectedPriority == null ? "active" : "")" href="@BuildFilterHref(priority: null)">All</a>
+                            @foreach (var priority in Enum.GetValues<Priority>())
+                            {
+                                <a class="filter-btn text-decoration-none @(SelectedPriority == priority ? "active" : "")"
+                                   href="@BuildFilterHref(priority: priority.ToString().ToLowerInvariant())">
+                                    @priority
+                                </a>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="filters-group">
+                        <div class="filters-label">Category</div>
+                        <div class="filters-options">
+                            <a class="filter-btn text-decoration-none @(SelectedCategory == null ? "active" : "")" href="@BuildFilterHref(category: null)">All</a>
+                            @foreach (var category in Enum.GetValues<TaskCategory>())
+                            {
+                                <a class="filter-btn text-decoration-none @(SelectedCategory == category ? "active" : "") category-@category.ToString().ToLowerInvariant()"
+                                   href="@BuildFilterHref(category: category.ToString().ToLowerInvariant())">
+                                    <span class="category-dot"></span>@GetCategoryLabel(category)
+                                </a>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="filters-group">
+                        <div class="filters-options">
+                            <a class="filter-btn text-decoration-none @(OverdueOnly ? "active" : "")" href="@BuildFilterHref(overdue: !OverdueOnly)">
+                                @if (OverdueOnly)
+                                {
+                                    <span>Overdue Only On</span>
+                                }
+                                else
+                                {
+                                    <span>Overdue Only Off</span>
+                                }
+                            </a>
+                        </div>
+                    </div>
+                </section>
+            }
 
             <div class="tasks-container">
                 @if (IsLoading)
@@ -152,8 +213,20 @@
     [SupplyParameterFromQuery(Name = "view")]
     public string? SelectedView { get; set; }
 
+    [SupplyParameterFromQuery(Name = "priority")]
+    public string? SelectedPriorityString { get; set; }
+
+    [SupplyParameterFromQuery(Name = "status")]
+    public string? SelectedStatus { get; set; }
+
+    [SupplyParameterFromQuery(Name = "overdue")]
+    public bool OverdueOnly { get; set; }
+
     private TaskCategory? SelectedCategory => Enum.TryParse<TaskCategory>(SelectedCategoryString, true, out var parsedCategory)
         ? parsedCategory
+        : null;
+    private Priority? SelectedPriority => Enum.TryParse<Priority>(SelectedPriorityString, true, out var parsedPriority)
+        ? parsedPriority
         : null;
 
     private List<TaskItem> TasksList { get; set; } = new();
@@ -177,7 +250,8 @@
     private bool IsArchiveView => string.Equals(SelectedView, "archive", StringComparison.OrdinalIgnoreCase);
     private bool IsTodayView => string.Equals(SelectedView, "today", StringComparison.OrdinalIgnoreCase);
     private bool IsUpcomingView => string.Equals(SelectedView, "upcoming", StringComparison.OrdinalIgnoreCase);
-    private bool IsFiltersView => SelectedCategory.HasValue;
+    private bool IsFiltersView => string.Equals(SelectedView, "filters", StringComparison.OrdinalIgnoreCase);
+    private string SelectedStatusValue => string.IsNullOrWhiteSpace(SelectedStatus) ? "all" : SelectedStatus.ToLowerInvariant();
     private bool IsInboxView => string.IsNullOrWhiteSpace(SelectedView) || string.Equals(SelectedView, "inbox", StringComparison.OrdinalIgnoreCase);
     private DateTime TodayUtc => DateTime.UtcNow.Date;
     private string PrimaryTaskGroupTitle
@@ -187,7 +261,9 @@
                 ? "Upcoming"
                 : IsArchiveView
                     ? "Completed"
-                    : "Pending Focus";
+                    : IsFiltersView
+                        ? "Filtered Results"
+                        : "Pending Focus";
 
     private string Greeting
     {
@@ -227,12 +303,35 @@
             : $"/tasks?view={view}";
     }
 
-    private string BuildCategoryHref(TaskCategory category)
+    private string BuildFilterHref(string? status = null, string? priority = null, string? category = null, bool? overdue = null)
     {
-        var categoryValue = category.ToString().ToLowerInvariant();
-        return IsInboxView
-            ? $"/tasks?category={categoryValue}"
-            : $"/tasks?view={SelectedView?.ToLowerInvariant()}&category={categoryValue}";
+        var parts = new List<string> { "view=filters" };
+
+        var statusValue = status ?? SelectedStatusValue;
+        if (!string.Equals(statusValue, "all", StringComparison.OrdinalIgnoreCase))
+        {
+            parts.Add($"status={statusValue.ToLowerInvariant()}");
+        }
+
+        var priorityValue = priority ?? SelectedPriority?.ToString().ToLowerInvariant();
+        if (!string.IsNullOrWhiteSpace(priorityValue))
+        {
+            parts.Add($"priority={priorityValue.ToLowerInvariant()}");
+        }
+
+        var categoryValue = category ?? SelectedCategory?.ToString().ToLowerInvariant();
+        if (!string.IsNullOrWhiteSpace(categoryValue))
+        {
+            parts.Add($"category={categoryValue.ToLowerInvariant()}");
+        }
+
+        var overdueValue = overdue ?? OverdueOnly;
+        if (overdueValue)
+        {
+            parts.Add("overdue=true");
+        }
+
+        return $"/tasks?{string.Join("&", parts)}";
     }
 
     private static string GetCategoryLabel(TaskCategory category)
@@ -252,11 +351,42 @@
                 ? PendingTasks.Where(t => t.DueDate.HasValue && t.DueDate.Value.Date == TodayUtc)
                 : IsUpcomingView
                     ? PendingTasks.Where(t => t.DueDate.HasValue && t.DueDate.Value.Date > TodayUtc)
-                    : PendingTasks;
+                    : IsFiltersView
+                        ? TasksList
+                        : PendingTasks;
+    private IEnumerable<TaskItem> FilteredTasks
+    {
+        get
+        {
+            var filtered = ViewFilteredTasks;
 
-    private IEnumerable<TaskItem> FilteredTasks => SelectedCategory.HasValue
-        ? ViewFilteredTasks.Where(t => t.Category == SelectedCategory.Value)
-        : ViewFilteredTasks;
+            if (SelectedCategory.HasValue)
+            {
+                filtered = filtered.Where(t => t.Category == SelectedCategory.Value);
+            }
+
+            if (SelectedPriority.HasValue)
+            {
+                filtered = filtered.Where(t => t.Priority == SelectedPriority.Value);
+            }
+
+            if (SelectedStatusValue == "pending")
+            {
+                filtered = filtered.Where(t => !t.IsCompleted);
+            }
+            else if (SelectedStatusValue == "completed")
+            {
+                filtered = filtered.Where(t => t.IsCompleted);
+            }
+
+            if (OverdueOnly)
+            {
+                filtered = filtered.Where(t => !t.IsCompleted && t.DueDate.HasValue && t.DueDate.Value.Date < TodayUtc);
+            }
+
+            return filtered;
+        }
+    }
 
     private IEnumerable<TaskItem> FilteredPendingTasks => FilteredTasks.Where(t => !t.IsCompleted)
         .OrderByDescending(t => t.DueDate.HasValue && t.DueDate.Value.Date < DateTime.UtcNow.Date) // Overdue first
