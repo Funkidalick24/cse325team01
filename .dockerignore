@@ -1,0 +1,16 @@
+.git
+.gitignore
+.dotnet
+**/bin
+**/obj
+**/build-temp
+**/*.user
+**/*.suo
+**/*.db-shm
+**/*.db-wal
+README.md
+design.md
+test.cs
+test_blazor.cs
+test_plan.md
+verify_action.py

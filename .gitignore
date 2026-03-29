@@ -7,6 +7,10 @@ TestIdentityApp/
 *.dylib
 TodoApp/TodoApp/bin_temp/
 .dotnet/
+.vs/
+*.log
+*.bak
+build-temp/
 *.db-shm
 *.db-wal
 .env
