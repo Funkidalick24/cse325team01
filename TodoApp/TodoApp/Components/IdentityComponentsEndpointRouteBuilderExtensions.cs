@@ -33,7 +33,8 @@ namespace TodoApp.Components
                 var result = await signInManager.PasswordSignInAsync(email, password, isPersistent: true, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    return TypedResults.LocalRedirect($"~/{returnUrl ?? "tasks"}");
+                    var destination = string.IsNullOrWhiteSpace(returnUrl) ? "tasks" : returnUrl.TrimStart('/');
+                    return TypedResults.LocalRedirect($"~/{destination}");
                 }
 
                 // On failure, go back to login with error
@@ -42,7 +43,6 @@ namespace TodoApp.Components
 
             accountGroup.MapPost("/Register", async (
                 UserManager<ApplicationUser> userManager,
-                SignInManager<ApplicationUser> signInManager,
                 [FromForm] string name,
                 [FromForm] string email,
                 [FromForm] string password,
@@ -66,8 +66,11 @@ namespace TodoApp.Components
                 if (result.Succeeded)
                 {
                     await userManager.AddClaimAsync(user, new Claim(ClaimTypes.GivenName, trimmedName));
-                    await signInManager.SignInAsync(user, isPersistent: true);
-                    return TypedResults.LocalRedirect($"~/{returnUrl ?? string.Empty}");
+                    var redirectToLogin = string.IsNullOrWhiteSpace(returnUrl)
+                        ? "~/login"
+                        : $"~/login?ReturnUrl={Uri.EscapeDataString(returnUrl)}";
+
+                    return TypedResults.LocalRedirect(redirectToLogin);
                 }
 
                 // On failure, go back to register with error
