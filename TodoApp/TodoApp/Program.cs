@@ -45,6 +45,13 @@ builder.Services.AddScoped<TodoApp.Components.IdentityRedirectManager>();
 
 var app = builder.Build();
 
+// Ensure the configured SQLite database has the latest schema on startup.
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    dbContext.Database.Migrate();
+}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

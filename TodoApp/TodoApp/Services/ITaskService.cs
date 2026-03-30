@@ -10,4 +10,6 @@ public interface ITaskService
     Task<TaskItem> UpdateTaskAsync(TaskItem task, string userId);
     Task DeleteTaskAsync(int id, string userId);
     Task ToggleTaskCompletionAsync(int id, string userId);
+    Task<int> DeleteCompletedTasksAsync(string userId);
+    Task<int> DeleteAllTasksAsync(string userId);
 }

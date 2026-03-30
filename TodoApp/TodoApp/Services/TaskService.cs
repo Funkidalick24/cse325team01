@@ -85,4 +85,36 @@ public class TaskService : ITaskService
             await _context.SaveChangesAsync();
         }
     }
+
+    public async Task<int> DeleteCompletedTasksAsync(string userId)
+    {
+        var completedTasks = await _context.Tasks
+            .Where(t => t.UserId == userId && t.IsCompleted)
+            .ToListAsync();
+
+        if (completedTasks.Count == 0)
+        {
+            return 0;
+        }
+
+        _context.Tasks.RemoveRange(completedTasks);
+        await _context.SaveChangesAsync();
+        return completedTasks.Count;
+    }
+
+    public async Task<int> DeleteAllTasksAsync(string userId)
+    {
+        var allTasks = await _context.Tasks
+            .Where(t => t.UserId == userId)
+            .ToListAsync();
+
+        if (allTasks.Count == 0)
+        {
+            return 0;
+        }
+
+        _context.Tasks.RemoveRange(allTasks);
+        await _context.SaveChangesAsync();
+        return allTasks.Count;
+    }
 }

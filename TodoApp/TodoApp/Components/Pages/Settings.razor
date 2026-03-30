@@ -1,0 +1,458 @@
+@page "/settings"
+@using System.ComponentModel.DataAnnotations
+@using System.Text.Json
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@using TodoApp.Models
+@using TodoApp.Services
+@attribute [Authorize]
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject ITaskService TaskService
+@inject IJSRuntime JS
+
+<PageTitle>Settings</PageTitle>
+
+<div class="settings-shell">
+    <header class="settings-header">
+        <h1>Settings</h1>
+        <p>Manage your profile, security, appearance, and data controls.</p>
+    </header>
+
+    @if (CurrentUser is null)
+    {
+        <div class="alert alert-warning">Unable to load your account settings right now.</div>
+    }
+    else
+    {
+        <section class="settings-grid">
+            <article class="settings-card" aria-labelledby="profile-heading">
+                <h2 id="profile-heading">Profile</h2>
+                <p class="settings-card-note">Update your core account details.</p>
+
+                @if (!string.IsNullOrWhiteSpace(ProfileMessage))
+                {
+                    <div class="@ProfileMessageClass">@ProfileMessage</div>
+                }
+
+                <EditForm Model="@Profile" OnValidSubmit="SaveProfileAsync">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="mb-3">
+                        <label class="form-label" for="profile-username">Username</label>
+                        <InputText id="profile-username" class="form-control" @bind-Value="Profile.UserName" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="profile-email">Email</label>
+                        <InputText id="profile-email" type="email" class="form-control" @bind-Value="Profile.Email" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="profile-phone">Phone Number</label>
+                        <InputText id="profile-phone" class="form-control" @bind-Value="Profile.PhoneNumber" />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Save Profile</button>
+                </EditForm>
+            </article>
+
+            <article class="settings-card" aria-labelledby="security-heading">
+                <h2 id="security-heading">Security</h2>
+                <p class="settings-card-note">Change your password securely.</p>
+
+                @if (!string.IsNullOrWhiteSpace(SecurityMessage))
+                {
+                    <div class="@SecurityMessageClass">@SecurityMessage</div>
+                }
+
+                <EditForm Model="@Security" OnValidSubmit="ChangePasswordAsync">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="mb-3">
+                        <label class="form-label" for="security-current">Current Password</label>
+                        <InputText id="security-current" type="password" class="form-control" @bind-Value="Security.CurrentPassword" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="security-new">New Password</label>
+                        <InputText id="security-new" type="password" class="form-control" @bind-Value="Security.NewPassword" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="security-confirm">Confirm New Password</label>
+                        <InputText id="security-confirm" type="password" class="form-control" @bind-Value="Security.ConfirmPassword" />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Update Password</button>
+                </EditForm>
+            </article>
+
+            <article class="settings-card" aria-labelledby="appearance-heading">
+                <h2 id="appearance-heading">Appearance</h2>
+                <p class="settings-card-note">Choose your preferred theme.</p>
+
+                @if (!string.IsNullOrWhiteSpace(AppearanceMessage))
+                {
+                    <div class="@AppearanceMessageClass">@AppearanceMessage</div>
+                }
+
+                <EditForm Model="@Appearance" OnValidSubmit="SaveAppearanceAsync">
+                    <DataAnnotationsValidator />
+
+                    <div class="mb-3">
+                        <label class="form-label" for="appearance-theme">Theme</label>
+                        <InputSelect id="appearance-theme" class="form-select" @bind-Value="Appearance.Theme">
+                            <option value="system">System</option>
+                            <option value="light">Light</option>
+                            <option value="dark">Dark</option>
+                        </InputSelect>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Save Appearance</button>
+                </EditForm>
+            </article>
+
+            <article class="settings-card" aria-labelledby="data-heading">
+                <h2 id="data-heading">Data Management</h2>
+                <p class="settings-card-note">Export your tasks or remove saved data.</p>
+
+                @if (!string.IsNullOrWhiteSpace(DataMessage))
+                {
+                    <div class="@DataMessageClass">@DataMessage</div>
+                }
+
+                <div class="settings-stat-row">
+                    <div><strong>@TotalTaskCount</strong> total tasks</div>
+                    <div><strong>@CompletedTaskCount</strong> completed tasks</div>
+                </div>
+
+                <div class="d-grid gap-2 mb-3">
+                    <button type="button" class="btn btn-outline-primary" @onclick="ExportTasksAsync">Export Tasks (JSON)</button>
+                    <button type="button" class="btn btn-outline-warning" @onclick="DeleteCompletedTasksAsync">Delete Completed Tasks</button>
+                </div>
+
+                <EditForm Model="@Data" OnValidSubmit="DeleteAllTasksAsync">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="mb-2">
+                        <label class="form-label" for="data-confirm">Type <code>DELETE ALL</code> to remove all tasks</label>
+                        <InputText id="data-confirm" class="form-control" @bind-Value="Data.ConfirmPhrase" />
+                    </div>
+
+                    <button type="submit" class="btn btn-danger">Delete All Tasks</button>
+                </EditForm>
+            </article>
+        </section>
+    }
+</div>
+
+@code {
+    private static readonly HashSet<string> ValidThemes = new(StringComparer.OrdinalIgnoreCase) { "system", "light", "dark" };
+
+    private ApplicationUser? CurrentUser;
+    private ProfileSettingsModel Profile { get; set; } = new();
+    private SecuritySettingsModel Security { get; set; } = new();
+    private AppearanceSettingsModel Appearance { get; set; } = new();
+    private DataManagementModel Data { get; set; } = new();
+
+    private string? ProfileMessage;
+    private string ProfileMessageClass { get; set; } = "alert alert-info";
+    private string? SecurityMessage;
+    private string SecurityMessageClass { get; set; } = "alert alert-info";
+    private string? AppearanceMessage;
+    private string AppearanceMessageClass { get; set; } = "alert alert-info";
+    private string? DataMessage;
+    private string DataMessageClass { get; set; } = "alert alert-info";
+
+    private int TotalTaskCount { get; set; }
+    private int CompletedTaskCount { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        CurrentUser = await UserManager.GetUserAsync(authState.User);
+
+        if (CurrentUser is null)
+        {
+            return;
+        }
+
+        Profile = new ProfileSettingsModel
+        {
+            UserName = CurrentUser.UserName ?? string.Empty,
+            Email = CurrentUser.Email ?? string.Empty,
+            PhoneNumber = CurrentUser.PhoneNumber
+        };
+
+        await RefreshTaskCountsAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        var storedTheme = await JS.InvokeAsync<string>("taskflowSettings.getThemePreference");
+        Appearance.Theme = ValidThemes.Contains(storedTheme) ? storedTheme : "system";
+        StateHasChanged();
+    }
+
+    private async Task SaveProfileAsync()
+    {
+        if (CurrentUser is null)
+        {
+            return;
+        }
+
+        var normalizedUserName = Profile.UserName.Trim();
+        var normalizedEmail = Profile.Email.Trim();
+        var normalizedPhone = string.IsNullOrWhiteSpace(Profile.PhoneNumber) ? null : Profile.PhoneNumber.Trim();
+
+        if (string.IsNullOrWhiteSpace(normalizedUserName) || string.IsNullOrWhiteSpace(normalizedEmail))
+        {
+            SetProfileMessage("Username and email are required.", isError: true);
+            return;
+        }
+
+        if (!string.Equals(CurrentUser.UserName, normalizedUserName, StringComparison.Ordinal))
+        {
+            var existingUser = await UserManager.FindByNameAsync(normalizedUserName);
+            if (existingUser is not null && existingUser.Id != CurrentUser.Id)
+            {
+                SetProfileMessage("That username is already in use.", isError: true);
+                return;
+            }
+        }
+
+        if (!string.Equals(CurrentUser.Email, normalizedEmail, StringComparison.OrdinalIgnoreCase))
+        {
+            var existingEmail = await UserManager.FindByEmailAsync(normalizedEmail);
+            if (existingEmail is not null && existingEmail.Id != CurrentUser.Id)
+            {
+                SetProfileMessage("That email is already in use.", isError: true);
+                return;
+            }
+        }
+
+        var results = new List<IdentityResult>();
+        var changed = false;
+
+        if (!string.Equals(CurrentUser.UserName, normalizedUserName, StringComparison.Ordinal))
+        {
+            results.Add(await UserManager.SetUserNameAsync(CurrentUser, normalizedUserName));
+            changed = true;
+        }
+
+        if (!string.Equals(CurrentUser.Email, normalizedEmail, StringComparison.OrdinalIgnoreCase))
+        {
+            results.Add(await UserManager.SetEmailAsync(CurrentUser, normalizedEmail));
+            changed = true;
+        }
+
+        if (!string.Equals(CurrentUser.PhoneNumber, normalizedPhone, StringComparison.Ordinal))
+        {
+            results.Add(await UserManager.SetPhoneNumberAsync(CurrentUser, normalizedPhone));
+            changed = true;
+        }
+
+        var failures = results.Where(r => !r.Succeeded).SelectMany(r => r.Errors).Select(e => e.Description).ToList();
+        if (failures.Count > 0)
+        {
+            SetProfileMessage(string.Join(" ", failures), isError: true);
+            return;
+        }
+
+        if (!changed)
+        {
+            SetProfileMessage("No profile changes detected.", isError: false);
+            return;
+        }
+
+        await SignInManager.RefreshSignInAsync(CurrentUser);
+        SetProfileMessage("Profile updated successfully.", isError: false);
+    }
+
+    private async Task ChangePasswordAsync()
+    {
+        if (CurrentUser is null)
+        {
+            return;
+        }
+
+        var result = await UserManager.ChangePasswordAsync(CurrentUser, Security.CurrentPassword, Security.NewPassword);
+        if (!result.Succeeded)
+        {
+            var errors = string.Join(" ", result.Errors.Select(e => e.Description));
+            SetSecurityMessage(string.IsNullOrWhiteSpace(errors) ? "Unable to update password." : errors, isError: true);
+            return;
+        }
+
+        await SignInManager.RefreshSignInAsync(CurrentUser);
+        Security = new SecuritySettingsModel();
+        SetSecurityMessage("Password updated successfully.", isError: false);
+    }
+
+    private async Task SaveAppearanceAsync()
+    {
+        var selectedTheme = Appearance.Theme?.Trim().ToLowerInvariant() ?? "system";
+        if (!ValidThemes.Contains(selectedTheme))
+        {
+            SetAppearanceMessage("Please select a valid theme.", isError: true);
+            return;
+        }
+
+        await JS.InvokeVoidAsync("taskflowSettings.setThemePreference", selectedTheme);
+        Appearance.Theme = selectedTheme;
+        SetAppearanceMessage("Appearance updated.", isError: false);
+    }
+
+    private async Task ExportTasksAsync()
+    {
+        if (CurrentUser is null)
+        {
+            return;
+        }
+
+        var tasks = await TaskService.GetTasksAsync(CurrentUser.Id);
+        var payload = new
+        {
+            exportedAtUtc = DateTime.UtcNow,
+            app = "Taskflow",
+            total = tasks.Count,
+            tasks = tasks.Select(t => new
+            {
+                t.Id,
+                t.Title,
+                t.Description,
+                t.DueDate,
+                Priority = t.Priority.ToString(),
+                Category = t.Category.ToString(),
+                t.IsCompleted,
+                t.CreatedAt,
+                t.CompletedAt
+            })
+        };
+
+        var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true });
+        var fileName = $"taskflow-tasks-{DateTime.UtcNow:yyyyMMdd-HHmmss}.json";
+
+        await JS.InvokeVoidAsync("taskflowSettings.downloadFile", fileName, "application/json", json);
+        SetDataMessage("Task data exported successfully.", isError: false);
+    }
+
+    private async Task DeleteCompletedTasksAsync()
+    {
+        if (CurrentUser is null)
+        {
+            return;
+        }
+
+        var deletedCount = await TaskService.DeleteCompletedTasksAsync(CurrentUser.Id);
+        await RefreshTaskCountsAsync();
+        SetDataMessage(deletedCount == 0 ? "No completed tasks to delete." : $"Deleted {deletedCount} completed task(s).", isError: false);
+    }
+
+    private async Task DeleteAllTasksAsync()
+    {
+        if (CurrentUser is null)
+        {
+            return;
+        }
+
+        if (!string.Equals(Data.ConfirmPhrase?.Trim(), "DELETE ALL", StringComparison.Ordinal))
+        {
+            SetDataMessage("Type DELETE ALL exactly to confirm full deletion.", isError: true);
+            return;
+        }
+
+        var deletedCount = await TaskService.DeleteAllTasksAsync(CurrentUser.Id);
+        Data.ConfirmPhrase = string.Empty;
+        await RefreshTaskCountsAsync();
+        SetDataMessage(deletedCount == 0 ? "No tasks to delete." : $"Deleted {deletedCount} task(s).", isError: false);
+    }
+
+    private async Task RefreshTaskCountsAsync()
+    {
+        if (CurrentUser is null)
+        {
+            return;
+        }
+
+        var tasks = await TaskService.GetTasksAsync(CurrentUser.Id);
+        TotalTaskCount = tasks.Count;
+        CompletedTaskCount = tasks.Count(t => t.IsCompleted);
+    }
+
+    private void SetProfileMessage(string message, bool isError)
+    {
+        ProfileMessage = message;
+        ProfileMessageClass = isError ? "alert alert-danger" : "alert alert-success";
+    }
+
+    private void SetSecurityMessage(string message, bool isError)
+    {
+        SecurityMessage = message;
+        SecurityMessageClass = isError ? "alert alert-danger" : "alert alert-success";
+    }
+
+    private void SetAppearanceMessage(string message, bool isError)
+    {
+        AppearanceMessage = message;
+        AppearanceMessageClass = isError ? "alert alert-danger" : "alert alert-success";
+    }
+
+    private void SetDataMessage(string message, bool isError)
+    {
+        DataMessage = message;
+        DataMessageClass = isError ? "alert alert-danger" : "alert alert-success";
+    }
+
+    private sealed class ProfileSettingsModel
+    {
+        [Required]
+        [StringLength(64, MinimumLength = 2)]
+        public string UserName { get; set; } = string.Empty;
+
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = string.Empty;
+
+        [Phone]
+        public string? PhoneNumber { get; set; }
+    }
+
+    private sealed class SecuritySettingsModel
+    {
+        [Required]
+        [DataType(DataType.Password)]
+        public string CurrentPassword { get; set; } = string.Empty;
+
+        [Required]
+        [DataType(DataType.Password)]
+        [StringLength(100, MinimumLength = 6)]
+        public string NewPassword { get; set; } = string.Empty;
+
+        [Required]
+        [DataType(DataType.Password)]
+        [Compare(nameof(NewPassword), ErrorMessage = "New password and confirmation do not match.")]
+        public string ConfirmPassword { get; set; } = string.Empty;
+    }
+
+    private sealed class AppearanceSettingsModel
+    {
+        [Required]
+        public string Theme { get; set; } = "system";
+    }
+
+    private sealed class DataManagementModel
+    {
+        public string ConfirmPhrase { get; set; } = string.Empty;
+    }
+}
