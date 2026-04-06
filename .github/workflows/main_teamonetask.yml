@@ -24,10 +24,11 @@ jobs:
           dotnet-version: '10.x'
 
       - name: Build with dotnet
-        run: dotnet build --configuration Release
+        run: dotnet build TodoApp/TodoApp/TodoApp.csproj --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o ./publish
+        run: dotnet publish TodoApp/TodoApp/TodoApp.csproj -c Release -o ./publish
+
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
