@@ -1834,3 +1834,38 @@ textarea:focus-visible,
 .rail-goal .rail-goal-meta {
     color: #ffffff;
 }
+
+/* Icon utilities */
+.ui-icon {
+    font-family: "Material Symbols Outlined";
+    font-weight: 400;
+    font-style: normal;
+    font-size: 1.1rem;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    font-feature-settings: "liga";
+}
+
+.icon-text {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.42rem;
+}
+
+.icon-text-tight {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.landing-feature-icon .ui-icon {
+    font-size: 2rem;
+}

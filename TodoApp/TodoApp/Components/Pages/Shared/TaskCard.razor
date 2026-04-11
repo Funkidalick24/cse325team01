@@ -18,10 +18,16 @@
 
         <div class="task-compact-content">
             <h4 class="task-title mb-0 @(Task.IsCompleted ? "text-strikethrough text-muted" : "")">@Task.Title</h4>
-            <div class="task-compact-meta">Completed @GetCompletedLabel()</div>
+            <div class="task-compact-meta icon-text-tight">
+                <span class="ui-icon" aria-hidden="true">task_alt</span>
+                <span>Completed @GetCompletedLabel()</span>
+            </div>
         </div>
 
-        <a href="/tasks/edit/@Task.Id" class="task-compact-link" aria-label="Edit task">Edit</a>
+        <a href="/tasks/edit/@Task.Id" class="task-compact-link icon-text-tight" aria-label="Edit task">
+            <span class="ui-icon" aria-hidden="true">edit</span>
+            <span>Edit</span>
+        </a>
     </article>
 }
 else
@@ -43,7 +49,10 @@ else
                         <h4 class="task-title mb-0 @(Task.IsCompleted ? "text-strikethrough text-muted" : "")">@Task.Title</h4>
                         @if (IsOverdue)
                         {
-                            <span class="task-flag-overdue">Overdue</span>
+                            <span class="task-flag-overdue icon-text-tight">
+                                <span class="ui-icon" aria-hidden="true">warning</span>
+                                <span>Overdue</span>
+                            </span>
                         }
                     </div>
                     @if (!string.IsNullOrEmpty(Task.Description))
@@ -57,10 +66,19 @@ else
         <div class="task-footer">
             @if (Task.DueDate.HasValue)
             {
-                <span class="task-footer-item @(IsOverdue ? "is-alert" : "")">@FormatDueDate(Task.DueDate.Value)</span>
+                <span class="task-footer-item icon-text @(IsOverdue ? "is-alert" : "")">
+                    <span class="ui-icon" aria-hidden="true">schedule</span>
+                    <span>@FormatDueDate(Task.DueDate.Value)</span>
+                </span>
             }
-            <span class="task-footer-item">@GetCategoryLabel()</span>
-            <span class="task-footer-item">@Task.Priority Priority</span>
+            <span class="task-footer-item icon-text">
+                <span class="ui-icon" aria-hidden="true">category</span>
+                <span>@GetCategoryLabel()</span>
+            </span>
+            <span class="task-footer-item icon-text">
+                <span class="ui-icon" aria-hidden="true">@GetPriorityIcon()</span>
+                <span>@Task.Priority Priority</span>
+            </span>
         </div>
     </article>
 }
@@ -121,6 +139,14 @@ else
             TaskCategory.Health => "Marketing",
             TaskCategory.Personal => "Personal",
             _ => "General"
+        };
+
+    private string GetPriorityIcon()
+        => Task.Priority switch
+        {
+            Priority.High => "keyboard_double_arrow_up",
+            Priority.Medium => "remove",
+            _ => "keyboard_double_arrow_down"
         };
 
     private string FormatDueDate(DateTime date)

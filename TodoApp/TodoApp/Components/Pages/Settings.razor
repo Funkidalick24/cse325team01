@@ -16,7 +16,7 @@
 
 <div class="settings-shell">
     <header class="settings-header">
-        <h1>Settings</h1>
+        <h1 class="icon-text"><span class="ui-icon" aria-hidden="true">settings</span><span>Settings</span></h1>
         <p>Manage your profile, security, appearance, and data controls.</p>
     </header>
 
@@ -28,7 +28,7 @@
     {
         <section class="settings-grid">
             <article class="settings-card" aria-labelledby="profile-heading">
-                <h2 id="profile-heading">Profile</h2>
+                <h2 id="profile-heading" class="icon-text"><span class="ui-icon" aria-hidden="true">person</span><span>Profile</span></h2>
                 <p class="settings-card-note">Update your core account details.</p>
 
                 @if (!string.IsNullOrWhiteSpace(ProfileMessage))
@@ -41,26 +41,26 @@
                     <ValidationSummary />
 
                     <div class="mb-3">
-                        <label class="form-label" for="profile-username">Username</label>
+                        <label class="form-label icon-text" for="profile-username"><span class="ui-icon" aria-hidden="true">badge</span><span>Username</span></label>
                         <InputText id="profile-username" class="form-control" @bind-Value="Profile.UserName" />
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label" for="profile-email">Email</label>
+                        <label class="form-label icon-text" for="profile-email"><span class="ui-icon" aria-hidden="true">mail</span><span>Email</span></label>
                         <InputText id="profile-email" type="email" class="form-control" @bind-Value="Profile.Email" />
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label" for="profile-phone">Phone Number</label>
+                        <label class="form-label icon-text" for="profile-phone"><span class="ui-icon" aria-hidden="true">call</span><span>Phone Number</span></label>
                         <InputText id="profile-phone" class="form-control" @bind-Value="Profile.PhoneNumber" />
                     </div>
 
-                    <button type="submit" class="btn btn-primary">Save Profile</button>
+                    <button type="submit" class="btn btn-primary icon-text"><span class="ui-icon" aria-hidden="true">save</span><span>Save Profile</span></button>
                 </EditForm>
             </article>
 
             <article class="settings-card" aria-labelledby="security-heading">
-                <h2 id="security-heading">Security</h2>
+                <h2 id="security-heading" class="icon-text"><span class="ui-icon" aria-hidden="true">shield_lock</span><span>Security</span></h2>
                 <p class="settings-card-note">Change your password securely.</p>
 
                 @if (!string.IsNullOrWhiteSpace(SecurityMessage))
@@ -73,26 +73,26 @@
                     <ValidationSummary />
 
                     <div class="mb-3">
-                        <label class="form-label" for="security-current">Current Password</label>
+                        <label class="form-label icon-text" for="security-current"><span class="ui-icon" aria-hidden="true">key</span><span>Current Password</span></label>
                         <InputText id="security-current" type="password" class="form-control" @bind-Value="Security.CurrentPassword" />
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label" for="security-new">New Password</label>
+                        <label class="form-label icon-text" for="security-new"><span class="ui-icon" aria-hidden="true">lock</span><span>New Password</span></label>
                         <InputText id="security-new" type="password" class="form-control" @bind-Value="Security.NewPassword" />
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label" for="security-confirm">Confirm New Password</label>
+                        <label class="form-label icon-text" for="security-confirm"><span class="ui-icon" aria-hidden="true">lock_reset</span><span>Confirm New Password</span></label>
                         <InputText id="security-confirm" type="password" class="form-control" @bind-Value="Security.ConfirmPassword" />
                     </div>
 
-                    <button type="submit" class="btn btn-primary">Update Password</button>
+                    <button type="submit" class="btn btn-primary icon-text"><span class="ui-icon" aria-hidden="true">lock</span><span>Update Password</span></button>
                 </EditForm>
             </article>
 
             <article class="settings-card" aria-labelledby="appearance-heading">
-                <h2 id="appearance-heading">Appearance</h2>
+                <h2 id="appearance-heading" class="icon-text"><span class="ui-icon" aria-hidden="true">palette</span><span>Appearance</span></h2>
                 <p class="settings-card-note">Choose your preferred theme.</p>
 
                 @if (!string.IsNullOrWhiteSpace(AppearanceMessage))
@@ -104,7 +104,7 @@
                     <DataAnnotationsValidator />
 
                     <div class="mb-3">
-                        <label class="form-label" for="appearance-theme">Theme</label>
+                        <label class="form-label icon-text" for="appearance-theme"><span class="ui-icon" aria-hidden="true">dark_mode</span><span>Theme</span></label>
                         <InputSelect id="appearance-theme" class="form-select" @bind-Value="Appearance.Theme">
                             <option value="system">System</option>
                             <option value="light">Light</option>
@@ -112,12 +112,12 @@
                         </InputSelect>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">Save Appearance</button>
+                    <button type="submit" class="btn btn-primary icon-text"><span class="ui-icon" aria-hidden="true">save</span><span>Save Appearance</span></button>
                 </EditForm>
             </article>
 
             <article class="settings-card" aria-labelledby="data-heading">
-                <h2 id="data-heading">Data Management</h2>
+                <h2 id="data-heading" class="icon-text"><span class="ui-icon" aria-hidden="true">database</span><span>Data Management</span></h2>
                 <p class="settings-card-note">Export your tasks or remove saved data.</p>
 
                 @if (!string.IsNullOrWhiteSpace(DataMessage))
@@ -126,13 +126,13 @@
                 }
 
                 <div class="settings-stat-row">
-                    <div><strong>@TotalTaskCount</strong> total tasks</div>
-                    <div><strong>@CompletedTaskCount</strong> completed tasks</div>
+                    <div class="icon-text"><span class="ui-icon" aria-hidden="true">checklist</span><span><strong>@TotalTaskCount</strong> total tasks</span></div>
+                    <div class="icon-text"><span class="ui-icon" aria-hidden="true">task_alt</span><span><strong>@CompletedTaskCount</strong> completed tasks</span></div>
                 </div>
 
                 <div class="d-grid gap-2 mb-3">
-                    <button type="button" class="btn btn-outline-primary" @onclick="ExportTasksAsync">Export Tasks (JSON)</button>
-                    <button type="button" class="btn btn-outline-warning" @onclick="DeleteCompletedTasksAsync">Delete Completed Tasks</button>
+                    <button type="button" class="btn btn-outline-primary icon-text" @onclick="ExportTasksAsync"><span class="ui-icon" aria-hidden="true">download</span><span>Export Tasks (JSON)</span></button>
+                    <button type="button" class="btn btn-outline-warning icon-text" @onclick="DeleteCompletedTasksAsync"><span class="ui-icon" aria-hidden="true">delete_sweep</span><span>Delete Completed Tasks</span></button>
                 </div>
 
                 <EditForm Model="@Data" OnValidSubmit="DeleteAllTasksAsync">
@@ -140,11 +140,11 @@
                     <ValidationSummary />
 
                     <div class="mb-2">
-                        <label class="form-label" for="data-confirm">Type <code>DELETE ALL</code> to remove all tasks</label>
+                        <label class="form-label icon-text" for="data-confirm"><span class="ui-icon" aria-hidden="true">warning</span><span>Type <code>DELETE ALL</code> to remove all tasks</span></label>
                         <InputText id="data-confirm" class="form-control" @bind-Value="Data.ConfirmPhrase" />
                     </div>
 
-                    <button type="submit" class="btn btn-danger">Delete All Tasks</button>
+                    <button type="submit" class="btn btn-danger icon-text"><span class="ui-icon" aria-hidden="true">delete_forever</span><span>Delete All Tasks</span></button>
                 </EditForm>
             </article>
         </section>
