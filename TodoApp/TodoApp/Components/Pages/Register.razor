@@ -1,8 +1,4 @@
 @page "/register"
-@using Microsoft.AspNetCore.Identity
-@using Microsoft.AspNetCore.Authentication
-@using TodoApp.Models
-@using System.ComponentModel.DataAnnotations
 @inject NavigationManager NavigationManager
 
 <PageTitle>Register</PageTitle>
@@ -24,26 +20,101 @@
             <input type="hidden" name="ReturnUrl" value="@ReturnUrl" />
 
             <div class="form-group mb-3">
-                <label for="name" class="form-label">Name</label>
-                <input type="text" name="Name" id="name" class="form-control" placeholder="Your name" required maxlength="100" />
+                <label for="name" class="form-label icon-text">
+                    <span class="ui-icon" aria-hidden="true">badge</span>
+                    <span>Name</span>
+                </label>
+                <input type="text" name="Name" id="name" class="form-control" placeholder="Your name" required maxlength="100" @bind="Name" />
             </div>
 
             <div class="form-group mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" name="Email" id="email" class="form-control" placeholder="name@example.com" required />
+                <label for="username" class="form-label icon-text">
+                    <span class="ui-icon" aria-hidden="true">person</span>
+                    <span>Username</span>
+                </label>
+                <input
+                    type="text"
+                    name="Username"
+                    id="username"
+                    class="form-control"
+                    placeholder="Choose a username"
+                    required
+                    minlength="3"
+                    maxlength="32"
+                    pattern="^[a-zA-Z0-9._-]{3,32}$"
+                    title="3-32 characters. Use letters, numbers, dot (.), underscore (_), or hyphen (-)."
+                    @bind="Username"
+                    @bind:event="oninput" />
+                <div class="form-text">
+                    3-32 characters. Letters, numbers, dot (.), underscore (_), and hyphen (-) only.
+                </div>
+                @if (ShowUsernameFeedback)
+                {
+                    <div class="form-text @(IsUsernameValid ? "text-success" : "text-danger")">
+                        @(IsUsernameValid ? "Username format looks good." : "Username must be 3-32 chars and use only letters, numbers, ., _, or -.")
+                    </div>
+                }
             </div>
 
             <div class="form-group mb-3">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" name="Password" id="password" class="form-control" placeholder="Password" required minlength="6" />
+                <label for="email" class="form-label icon-text">
+                    <span class="ui-icon" aria-hidden="true">mail</span>
+                    <span>Email</span>
+                </label>
+                <input type="email" name="Email" id="email" class="form-control" placeholder="name@example.com" required @bind="Email" />
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="password" class="form-label icon-text">
+                    <span class="ui-icon" aria-hidden="true">lock</span>
+                    <span>Password</span>
+                </label>
+                <input
+                    type="@RegisterPasswordInputType"
+                    name="Password"
+                    id="password"
+                    class="form-control"
+                    placeholder="Password"
+                    required
+                    minlength="6"
+                    @bind="Password"
+                    @bind:event="oninput" />
             </div>
 
             <div class="form-group mb-4">
-                <label for="confirm-password" class="form-label">Confirm Password</label>
-                <input type="password" name="ConfirmPassword" id="confirm-password" class="form-control" placeholder="Confirm Password" required minlength="6" />
+                <label for="confirm-password" class="form-label icon-text">
+                    <span class="ui-icon" aria-hidden="true">lock_reset</span>
+                    <span>Confirm Password</span>
+                </label>
+                <input
+                    type="@RegisterPasswordInputType"
+                    name="ConfirmPassword"
+                    id="confirm-password"
+                    class="form-control"
+                    placeholder="Confirm Password"
+                    required
+                    minlength="6"
+                    @bind="ConfirmPassword"
+                    @bind:event="oninput" />
+                @if (ShowPasswordMatchFeedback)
+                {
+                    <div class="form-text @(PasswordsMatch ? "text-success" : "text-danger")">
+                        @(PasswordsMatch ? "Passwords match." : "Passwords do not match.")
+                    </div>
+                }
+                <div class="form-check mt-2">
+                    <input class="form-check-input" type="checkbox" id="show-register-passwords" @bind="ShowRegisterPasswords" />
+                    <label class="form-check-label icon-text" for="show-register-passwords">
+                        <span class="ui-icon" aria-hidden="true">visibility</span>
+                        <span>Show passwords</span>
+                    </label>
+                </div>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100">Register</button>
+            <button type="submit" class="btn btn-primary w-100 icon-text">
+                <span class="ui-icon" aria-hidden="true">person_add</span>
+                <span>Register</span>
+            </button>
 
             <div class="text-center mt-3">
                 <p>Already have an account? <a href="/login">Login here</a>.</p>
@@ -58,4 +129,17 @@
 
     [SupplyParameterFromQuery]
     public string? ReturnUrl { get; set; }
+
+    private string Name { get; set; } = string.Empty;
+    private string Username { get; set; } = string.Empty;
+    private string Email { get; set; } = string.Empty;
+    private string Password { get; set; } = string.Empty;
+    private string ConfirmPassword { get; set; } = string.Empty;
+    private bool ShowRegisterPasswords { get; set; }
+
+    private string RegisterPasswordInputType => ShowRegisterPasswords ? "text" : "password";
+    private bool ShowPasswordMatchFeedback => !string.IsNullOrWhiteSpace(Password) || !string.IsNullOrWhiteSpace(ConfirmPassword);
+    private bool PasswordsMatch => string.Equals(Password, ConfirmPassword, StringComparison.Ordinal);
+    private bool ShowUsernameFeedback => !string.IsNullOrWhiteSpace(Username);
+    private bool IsUsernameValid => System.Text.RegularExpressions.Regex.IsMatch(Username ?? string.Empty, "^[a-zA-Z0-9._-]{3,32}$");
 }

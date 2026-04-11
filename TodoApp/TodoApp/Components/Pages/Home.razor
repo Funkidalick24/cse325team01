@@ -21,14 +21,14 @@
                 <AuthorizeView>
                     <Authorized>
                         <div class="landing-cta">
-                            <a class="btn btn-primary btn-lg" href="/tasks">Open Dashboard</a>
-                            <a class="btn btn-outline-secondary btn-lg" href="/tasks/add">Add a Task</a>
+                            <a class="btn btn-primary btn-lg icon-text" href="/tasks"><span class="ui-icon" aria-hidden="true">dashboard</span><span>Open Dashboard</span></a>
+                            <a class="btn btn-outline-secondary btn-lg icon-text" href="/tasks/add"><span class="ui-icon" aria-hidden="true">add_circle</span><span>Add a Task</span></a>
                         </div>
                     </Authorized>
                     <NotAuthorized>
                         <div class="landing-cta">
-                            <a class="btn btn-primary btn-lg" href="/register">Start Building</a>
-                            <a class="btn btn-outline-secondary btn-lg" href="/login">Login</a>
+                            <a class="btn btn-primary btn-lg icon-text" href="/register"><span class="ui-icon" aria-hidden="true">rocket_launch</span><span>Start Building</span></a>
+                            <a class="btn btn-outline-secondary btn-lg icon-text" href="/login"><span class="ui-icon" aria-hidden="true">login</span><span>Login</span></a>
                         </div>
                     </NotAuthorized>
                 </AuthorizeView>
@@ -76,22 +76,22 @@
 
         <div class="landing-feature-grid">
             <div class="landing-feature">
-                <div class="landing-feature-icon">🛡️</div>
+                <div class="landing-feature-icon"><span class="ui-icon" aria-hidden="true">shield_lock</span></div>
                 <h3 class="landing-h3">Secure Identity</h3>
                 <p class="landing-p-sm">Registration, login, and sessions powered by ASP.NET Core Identity.</p>
             </div>
             <div class="landing-feature">
-                <div class="landing-feature-icon">⚡</div>
+                <div class="landing-feature-icon"><span class="ui-icon" aria-hidden="true">bolt</span></div>
                 <h3 class="landing-h3">Fast Dashboard</h3>
                 <p class="landing-p-sm">Quick scanning of Pending vs Completed, with smooth interactions.</p>
             </div>
             <div class="landing-feature">
-                <div class="landing-feature-icon">🏷️</div>
+                <div class="landing-feature-icon"><span class="ui-icon" aria-hidden="true">sell</span></div>
                 <h3 class="landing-h3">Category Clustering</h3>
                 <p class="landing-p-sm">Filter by category and keep your day grouped the way you think.</p>
             </div>
             <div class="landing-feature">
-                <div class="landing-feature-icon">✅</div>
+                <div class="landing-feature-icon"><span class="ui-icon" aria-hidden="true">done_all</span></div>
                 <h3 class="landing-h3">One‑Click Controls</h3>
                 <p class="landing-p-sm">Toggle completion, edit, or delete tasks directly from the card.</p>
             </div>
@@ -108,10 +108,10 @@
         <div class="landing-cta-wide">
             <AuthorizeView>
                 <Authorized>
-                    <a class="btn btn-primary btn-lg" href="/tasks">Go to Tasks</a>
+                    <a class="btn btn-primary btn-lg icon-text" href="/tasks"><span class="ui-icon" aria-hidden="true">checklist</span><span>Go to Tasks</span></a>
                 </Authorized>
                 <NotAuthorized>
-                    <a class="btn btn-primary btn-lg" href="/register">Create Free Account</a>
+                    <a class="btn btn-primary btn-lg icon-text" href="/register"><span class="ui-icon" aria-hidden="true">person_add</span><span>Create Free Account</span></a>
                 </NotAuthorized>
             </AuthorizeView>
         </div>

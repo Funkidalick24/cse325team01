@@ -38,19 +38,34 @@
                                 <span class="profile-avatar">@GetInitial(context.User)</span>
                             </summary>
                             <div class="profile-dropdown" role="menu" aria-label="Profile actions">
-                                <a href="/tasks" class="profile-item" role="menuitem">Dashboard</a>
-                                <a href="/settings" class="profile-item" role="menuitem">Settings</a>
+                                <a href="/tasks" class="profile-item icon-text" role="menuitem">
+                                    <span class="ui-icon" aria-hidden="true">dashboard</span>
+                                    <span>Dashboard</span>
+                                </a>
+                                <a href="/settings" class="profile-item icon-text" role="menuitem">
+                                    <span class="ui-icon" aria-hidden="true">settings</span>
+                                    <span>Settings</span>
+                                </a>
                                 <form action="Account/Logout" method="post" @formname="LogoutForm">
                                     <AntiforgeryToken />
                                     <input type="hidden" name="ReturnUrl" value="" />
-                                    <button type="submit" class="profile-item profile-item-button" role="menuitem">Logout</button>
+                                    <button type="submit" class="profile-item profile-item-button icon-text" role="menuitem">
+                                        <span class="ui-icon" aria-hidden="true">logout</span>
+                                        <span>Logout</span>
+                                    </button>
                                 </form>
                             </div>
                         </details>
                     </Authorized>
                     <NotAuthorized>
-                        <a class="btn btn-sm btn-link text-decoration-none" href="/login">Login</a>
-                        <a class="btn btn-sm btn-primary" href="/register">Register</a>
+                        <a class="btn btn-sm btn-link text-decoration-none icon-text" href="/login">
+                            <span class="ui-icon" aria-hidden="true">login</span>
+                            <span>Login</span>
+                        </a>
+                        <a class="btn btn-sm btn-primary icon-text" href="/register">
+                            <span class="ui-icon" aria-hidden="true">person_add</span>
+                            <span>Register</span>
+                        </a>
                     </NotAuthorized>
                 </AuthorizeView>
             </div>

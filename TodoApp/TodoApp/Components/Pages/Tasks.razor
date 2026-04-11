@@ -17,24 +17,29 @@
             <h1 class="dashboard-greeting">@Greeting, @DisplayName.</h1>
             <p class="dashboard-subtitle">@HeroSubtitle</p>
         </div>
-        <a href="/tasks/add" class="btn btn-primary btn-lg dashboard-cta">+ Create New Task</a>
+        <a href="/tasks/add" class="btn btn-primary btn-lg dashboard-cta">
+            <span class="icon-text">
+                <span class="ui-icon" aria-hidden="true">add_circle</span>
+                <span>Create New Task</span>
+            </span>
+        </a>
     </header>
 
     <section class="metric-grid" aria-label="Task metrics">
         <div class="metric-card">
-            <div class="metric-label">Total Tasks</div>
+            <div class="metric-label icon-text"><span class="ui-icon" aria-hidden="true">checklist</span><span>Total Tasks</span></div>
             <div class="metric-value">@FormatCount(TasksList.Count)</div>
         </div>
         <div class="metric-card metric-primary">
-            <div class="metric-label">Pending</div>
+            <div class="metric-label icon-text"><span class="ui-icon" aria-hidden="true">pending_actions</span><span>Pending</span></div>
             <div class="metric-value">@FormatCount(PendingTasks.Count)</div>
         </div>
         <div class="metric-card">
-            <div class="metric-label">Completed</div>
+            <div class="metric-label icon-text"><span class="ui-icon" aria-hidden="true">task_alt</span><span>Completed</span></div>
             <div class="metric-value">@FormatCount(CompletedTasks.Count)</div>
         </div>
         <div class="metric-card metric-warning">
-            <div class="metric-label">Overdue</div>
+            <div class="metric-label icon-text"><span class="ui-icon" aria-hidden="true">warning</span><span>Overdue</span></div>
             <div class="metric-value">@FormatCount(OverdueCount)</div>
         </div>
     </section>
@@ -46,38 +51,43 @@
                 <div class="sidebar-brand-subtitle">Productivity Engine</div>
             </div>
 
-            <a href="/tasks/add" class="btn btn-primary sidebar-create-btn">+ Create Task</a>
+            <a href="/tasks/add" class="btn btn-primary sidebar-create-btn">
+                <span class="icon-text">
+                    <span class="ui-icon" aria-hidden="true">add_circle</span>
+                    <span>Create Task</span>
+                </span>
+            </a>
 
             <nav class="sidebar-nav-links" aria-label="Task sections">
                 <a class="sidebar-link @(IsViewActive("inbox") ? "active" : "")" href="@BuildViewHref("inbox")">
-                    <span class="sidebar-link-icon" aria-hidden="true">□</span>
+                    <span class="sidebar-link-icon" aria-hidden="true"><span class="ui-icon">inbox</span></span>
                     <span>Inbox</span>
                 </a>
                 <a class="sidebar-link @(IsViewActive("today") ? "active" : "")" href="@BuildViewHref("today")">
-                    <span class="sidebar-link-icon" aria-hidden="true">◷</span>
+                    <span class="sidebar-link-icon" aria-hidden="true"><span class="ui-icon">today</span></span>
                     <span>Today</span>
                 </a>
                 <a class="sidebar-link @(IsViewActive("upcoming") ? "active" : "")" href="@BuildViewHref("upcoming")">
-                    <span class="sidebar-link-icon" aria-hidden="true">↗</span>
+                    <span class="sidebar-link-icon" aria-hidden="true"><span class="ui-icon">event_upcoming</span></span>
                     <span>Upcoming</span>
                 </a>
                 <a class="sidebar-link @(IsFiltersView ? "active" : "")" href="@BuildViewHref("filters")">
-                    <span class="sidebar-link-icon" aria-hidden="true">☰</span>
+                    <span class="sidebar-link-icon" aria-hidden="true"><span class="ui-icon">filter_alt</span></span>
                     <span>Filters</span>
                 </a>
                 <a class="sidebar-link @(IsViewActive("archive") ? "active" : "")" href="@BuildViewHref("archive")">
-                    <span class="sidebar-link-icon" aria-hidden="true">⌄</span>
+                    <span class="sidebar-link-icon" aria-hidden="true"><span class="ui-icon">inventory_2</span></span>
                     <span>Archive</span>
                 </a>
             </nav>
 
             <div class="sidebar-bottom-links">
                 <a class="sidebar-link" href="/settings">
-                    <span class="sidebar-link-icon" aria-hidden="true">⚙</span>
+                    <span class="sidebar-link-icon" aria-hidden="true"><span class="ui-icon">settings</span></span>
                     <span>Settings</span>
                 </a>
                 <a class="sidebar-link" href="/tasks">
-                    <span class="sidebar-link-icon" aria-hidden="true">?</span>
+                    <span class="sidebar-link-icon" aria-hidden="true"><span class="ui-icon">help</span></span>
                     <span>Help</span>
                 </a>
             </div>
@@ -89,42 +99,43 @@
             {
                 <section class="filters-panel" aria-label="Filters">
                     <div class="filters-panel-head">
-                        <h2 class="filters-panel-title">Filters</h2>
-                        <a href="/tasks?view=filters" class="filter-btn text-decoration-none">Clear</a>
+                        <h2 class="filters-panel-title icon-text"><span class="ui-icon" aria-hidden="true">tune</span><span>Filters</span></h2>
+                        <a href="/tasks?view=filters" class="filter-btn text-decoration-none icon-text"><span class="ui-icon" aria-hidden="true">clear_all</span><span>Clear</span></a>
                     </div>
 
                     <div class="filters-group">
-                        <div class="filters-label">Status</div>
+                        <div class="filters-label icon-text"><span class="ui-icon" aria-hidden="true">playlist_add_check</span><span>Status</span></div>
                         <div class="filters-options">
-                            <a class="filter-btn text-decoration-none @(SelectedStatusValue == "all" ? "active" : "")" href="@BuildFilterHref(status: "all")">All</a>
-                            <a class="filter-btn text-decoration-none @(SelectedStatusValue == "pending" ? "active" : "")" href="@BuildFilterHref(status: "pending")">Pending</a>
-                            <a class="filter-btn text-decoration-none @(SelectedStatusValue == "completed" ? "active" : "")" href="@BuildFilterHref(status: "completed")">Completed</a>
+                            <a class="filter-btn text-decoration-none icon-text @(SelectedStatusValue == "all" ? "active" : "")" href="@BuildFilterHref(status: "all")"><span class="ui-icon" aria-hidden="true">apps</span><span>All</span></a>
+                            <a class="filter-btn text-decoration-none icon-text @(SelectedStatusValue == "pending" ? "active" : "")" href="@BuildFilterHref(status: "pending")"><span class="ui-icon" aria-hidden="true">schedule</span><span>Pending</span></a>
+                            <a class="filter-btn text-decoration-none icon-text @(SelectedStatusValue == "completed" ? "active" : "")" href="@BuildFilterHref(status: "completed")"><span class="ui-icon" aria-hidden="true">task_alt</span><span>Completed</span></a>
                         </div>
                     </div>
 
                     <div class="filters-group">
-                        <div class="filters-label">Priority</div>
+                        <div class="filters-label icon-text"><span class="ui-icon" aria-hidden="true">flag</span><span>Priority</span></div>
                         <div class="filters-options">
-                            <a class="filter-btn text-decoration-none @(SelectedPriority == null ? "active" : "")" href="@BuildFilterHref(priority: null)">All</a>
+                            <a class="filter-btn text-decoration-none icon-text @(SelectedPriority == null ? "active" : "")" href="@BuildFilterHref(priority: null)"><span class="ui-icon" aria-hidden="true">apps</span><span>All</span></a>
                             @foreach (var priority in Enum.GetValues<Priority>())
                             {
-                                <a class="filter-btn text-decoration-none @(SelectedPriority == priority ? "active" : "")"
+                                <a class="filter-btn text-decoration-none icon-text @(SelectedPriority == priority ? "active" : "")"
                                    href="@BuildFilterHref(priority: priority.ToString().ToLowerInvariant())">
-                                    @priority
+                                    <span class="ui-icon" aria-hidden="true">@GetPriorityIcon(priority)</span>
+                                    <span>@priority</span>
                                 </a>
                             }
                         </div>
                     </div>
 
                     <div class="filters-group">
-                        <div class="filters-label">Category</div>
+                        <div class="filters-label icon-text"><span class="ui-icon" aria-hidden="true">category</span><span>Category</span></div>
                         <div class="filters-options">
-                            <a class="filter-btn text-decoration-none @(SelectedCategory == null ? "active" : "")" href="@BuildFilterHref(category: null)">All</a>
+                            <a class="filter-btn text-decoration-none icon-text @(SelectedCategory == null ? "active" : "")" href="@BuildFilterHref(category: null)"><span class="ui-icon" aria-hidden="true">apps</span><span>All</span></a>
                             @foreach (var category in Enum.GetValues<TaskCategory>())
                             {
-                                <a class="filter-btn text-decoration-none @(SelectedCategory == category ? "active" : "") category-@category.ToString().ToLowerInvariant()"
+                                <a class="filter-btn text-decoration-none icon-text @(SelectedCategory == category ? "active" : "") category-@category.ToString().ToLowerInvariant()"
                                    href="@BuildFilterHref(category: category.ToString().ToLowerInvariant())">
-                                    <span class="category-dot"></span>@GetCategoryLabel(category)
+                                    <span class="category-dot"></span><span>@GetCategoryLabel(category)</span>
                                 </a>
                             }
                         </div>
@@ -132,13 +143,15 @@
 
                     <div class="filters-group">
                         <div class="filters-options">
-                            <a class="filter-btn text-decoration-none @(OverdueOnly ? "active" : "")" href="@BuildFilterHref(overdue: !OverdueOnly)">
+                            <a class="filter-btn text-decoration-none icon-text @(OverdueOnly ? "active" : "")" href="@BuildFilterHref(overdue: !OverdueOnly)">
                                 @if (OverdueOnly)
                                 {
+                                    <span class="ui-icon" aria-hidden="true">toggle_on</span>
                                     <span>Overdue Only On</span>
                                 }
                                 else
                                 {
+                                    <span class="ui-icon" aria-hidden="true">toggle_off</span>
                                     <span>Overdue Only Off</span>
                                 }
                             </a>
@@ -162,10 +175,10 @@
                 else if (!FilteredTasks.Any())
                 {
                     <div class="empty-state">
-                        <div class="empty-icon">📝</div>
+                        <div class="empty-icon"><span class="ui-icon" aria-hidden="true">playlist_add_check_circle</span></div>
                         <h3>No tasks found</h3>
                         <p>You have no tasks matching the selected filter.</p>
-                        <a href="/tasks/add" class="btn btn-primary mt-3">Create your first task</a>
+                        <a href="/tasks/add" class="btn btn-primary mt-3 icon-text"><span class="ui-icon" aria-hidden="true">add_circle</span><span>Create your first task</span></a>
                     </div>
                 }
                 else
@@ -284,6 +297,14 @@
                 : "Your inbox is clear—add a task and keep moving.");
 
     private string FormatCount(int count) => count.ToString("00");
+    private static string GetPriorityIcon(Priority priority)
+        => priority switch
+        {
+            Priority.High => "keyboard_double_arrow_up",
+            Priority.Medium => "remove",
+            _ => "keyboard_double_arrow_down"
+        };
+
     private bool IsViewActive(string view)
         => string.Equals(view, "inbox", StringComparison.OrdinalIgnoreCase)
             ? IsInboxView
