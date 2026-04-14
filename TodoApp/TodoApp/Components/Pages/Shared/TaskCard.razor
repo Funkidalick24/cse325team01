@@ -73,7 +73,7 @@ else
             }
             <span class="task-footer-item icon-text">
                 <span class="ui-icon" aria-hidden="true">category</span>
-                <span>@GetCategoryLabel()</span>
+                <span>@Task.Category.GetDisplayLabel()</span>
             </span>
             <span class="task-footer-item icon-text">
                 <span class="ui-icon" aria-hidden="true">@GetPriorityIcon()</span>
@@ -130,16 +130,6 @@ else
 
         return Task.CompletedAt.Value.ToString("MMM dd");
     }
-
-    private string GetCategoryLabel()
-        => Task.Category switch
-        {
-            TaskCategory.Work => "Product Design",
-            TaskCategory.Shopping => "Operations",
-            TaskCategory.Health => "Marketing",
-            TaskCategory.Personal => "Personal",
-            _ => "General"
-        };
 
     private string GetPriorityIcon()
         => Task.Priority switch

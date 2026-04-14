@@ -7,9 +7,9 @@
 
     @foreach (var category in Enum.GetValues<TaskCategory>())
     {
-        <a href="/tasks?category=@category.ToString().ToLower()" class="filter-btn text-decoration-none category-@category.ToString().ToLower() @(SelectedCategory == category ? "active" : "")">
+        <a href="/tasks?category=@category.ToString().ToLowerInvariant()" class="filter-btn text-decoration-none category-@category.ToString().ToLowerInvariant() @(SelectedCategory == category ? "active" : "")">
             <span class="category-dot"></span>
-            @category.ToString()
+            @category.GetDisplayLabel()
         </a>
     }
 </div>
