@@ -135,7 +135,7 @@
                             {
                                 <a class="filter-btn text-decoration-none icon-text @(SelectedCategory == category ? "active" : "") category-@category.ToString().ToLowerInvariant()"
                                    href="@BuildFilterHref(category: category.ToString().ToLowerInvariant())">
-                                    <span class="category-dot"></span><span>@GetCategoryLabel(category)</span>
+                                    <span class="category-dot"></span><span>@category.GetDisplayLabel()</span>
                                 </a>
                             }
                         </div>
@@ -354,16 +354,6 @@
 
         return $"/tasks?{string.Join("&", parts)}";
     }
-
-    private static string GetCategoryLabel(TaskCategory category)
-        => category switch
-        {
-            TaskCategory.Work => "Product Design",
-            TaskCategory.Shopping => "Operations",
-            TaskCategory.Health => "Marketing",
-            TaskCategory.Personal => "Personal",
-            _ => "General"
-        };
 
     private IEnumerable<TaskItem> ViewFilteredTasks
         => IsArchiveView

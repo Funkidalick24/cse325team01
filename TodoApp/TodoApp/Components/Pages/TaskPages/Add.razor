@@ -59,9 +59,9 @@
                             <InputRadioGroup @bind-Value="CurrentTask.Category">
                                 @foreach (var category in Enum.GetValues<TaskCategory>())
                                 {
-                                    <label class="category-radio category-@category.ToString().ToLower()">
+                                    <label class="category-radio category-@category.ToString().ToLowerInvariant()">
                                         <InputRadio Value="@category" />
-                                        <span>@category.ToString()</span>
+                                        <span>@category.GetDisplayLabel()</span>
                                     </label>
                                 }
                             </InputRadioGroup>
