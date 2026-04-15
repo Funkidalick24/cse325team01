@@ -9,6 +9,7 @@
 @inject ITaskService TaskService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
+@inject ILogger<Edit> Logger
 
 <PageTitle>Edit Task</PageTitle>
 
@@ -18,15 +19,23 @@
             <h5 class="mb-0 icon-text"><span class="ui-icon" aria-hidden="true">edit_square</span><span>Edit Task</span></h5>
         </div>
         <div class="card-body">
+            @if (!string.IsNullOrWhiteSpace(FormError))
+            {
+                <div class="alert alert-danger" role="alert" aria-live="polite">
+                    @FormError
+                </div>
+            }
+
             @if (CurrentTask == null)
             {
                 <p>Loading...</p>
             }
             else
             {
-                <EditForm Model="CurrentTask" OnValidSubmit="HandleValidSubmit" FormName="EditTaskForm" FormMappingName="EditTaskForm">
+                <EditForm Model="CurrentTask" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="InvalidSubmit" FormName="EditTaskForm" FormMappingName="EditTaskForm">
                     <AntiforgeryToken />
                     <DataAnnotationsValidator />
+                    <ValidationSummary />
 
                     <input type="hidden" name="CurrentTask.Id" value="@CurrentTask.Id" />
 
@@ -75,7 +84,10 @@
 
                     <div class="mt-4">
                         <a href="/tasks" class="btn btn-secondary me-2 icon-text"><span class="ui-icon" aria-hidden="true">close</span><span>Cancel</span></a>
-                        <button type="submit" class="btn btn-primary icon-text"><span class="ui-icon" aria-hidden="true">save</span><span>Save Changes</span></button>
+                        <button type="submit" class="btn btn-primary icon-text" disabled="@IsSubmitting" aria-busy="@IsSubmitting">
+                            <span class="ui-icon" aria-hidden="true">save</span>
+                            <span>@(IsSubmitting ? "Saving..." : "Save Changes")</span>
+                        </button>
                     </div>
                 </EditForm>
             }
@@ -91,6 +103,8 @@
     public TaskItem? CurrentTask { get; set; }
 
     private string UserId { get; set; } = string.Empty;
+    private string? FormError { get; set; }
+    private bool IsSubmitting { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -99,22 +113,49 @@
 
         if (CurrentTask == null)
         {
-            var task = await TaskService.GetTaskAsync(Id, UserId);
-            if (task == null)
+            try
             {
-                NavigationManager.NavigateTo("/tasks");
-                return;
+                var task = await TaskService.GetTaskAsync(Id, UserId);
+                if (task == null)
+                {
+                    NavigationManager.NavigateTo("/tasks");
+                    return;
+                }
+                CurrentTask = task;
             }
-            CurrentTask = task;
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed loading task {TaskId} for user {UserId}", Id, UserId);
+                FormError = "We couldn't load this task. Please return to dashboard and try again.";
+            }
         }
     }
 
     private async Task HandleValidSubmit()
     {
-        if (CurrentTask != null)
+        FormError = null;
+        IsSubmitting = true;
+        try
         {
-            await TaskService.UpdateTaskAsync(CurrentTask, UserId);
-            NavigationManager.NavigateTo("/tasks");
+            if (CurrentTask != null)
+            {
+                await TaskService.UpdateTaskAsync(CurrentTask, UserId);
+                NavigationManager.NavigateTo("/tasks");
+            }
         }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed updating task {TaskId} for user {UserId}", CurrentTask?.Id, UserId);
+            FormError = "We couldn't update your task right now. Please try again.";
+        }
+        finally
+        {
+            IsSubmitting = false;
+        }
+    }
+
+    private void InvalidSubmit()
+    {
+        FormError = "Please fix the highlighted validation issues before saving.";
     }
 }

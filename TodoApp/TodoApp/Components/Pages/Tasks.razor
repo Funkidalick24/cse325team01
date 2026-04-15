@@ -8,6 +8,7 @@
 @attribute [Authorize]
 @inject ITaskService TaskService
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ILogger<Tasks> Logger
 
 <PageTitle>Dashboard - Tasks</PageTitle>
 
@@ -172,6 +173,13 @@
                         <div class="skeleton-card"></div>
                     </div>
                 }
+                else if (!string.IsNullOrWhiteSpace(LoadError))
+                {
+                    <div class="alert alert-danger d-flex flex-wrap align-items-center justify-content-between gap-2" role="alert" aria-live="polite">
+                        <span>@LoadError</span>
+                        <button type="button" class="btn btn-sm btn-outline-danger" @onclick="ReloadTasksAsync">Retry</button>
+                    </div>
+                }
                 else if (!FilteredTasks.Any())
                 {
                     <div class="empty-state">
@@ -244,6 +252,7 @@
 
     private List<TaskItem> TasksList { get; set; } = new();
     private bool IsLoading { get; set; } = true;
+    private string? LoadError { get; set; }
     private string UserId { get; set; } = string.Empty;
     private string DisplayName { get; set; } = "there";
 
@@ -409,17 +418,33 @@
 
     protected override async Task OnInitializedAsync()
     {
-        IsLoading = true;
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         UserId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
         DisplayName = authState.User.Identity?.Name ?? "there";
 
+        await ReloadTasksAsync();
+    }
+
+    private async Task ReloadTasksAsync()
+    {
+        IsLoading = true;
+        LoadError = null;
         try
         {
             if (!string.IsNullOrEmpty(UserId))
             {
                 TasksList = await TaskService.GetTasksAsync(UserId);
             }
+            else
+            {
+                TasksList = new();
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to load tasks for user {UserId}", UserId);
+            LoadError = "We couldn't load your tasks. Check your connection and try again.";
+            TasksList = new();
         }
         finally
         {

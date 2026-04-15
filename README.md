@@ -1,50 +1,50 @@
-j# TaskFlow - Simple Task Manager
+# Taskflow - Blazor Task Management Platform
 
-## Project Description
-A simple Task Manager / To-Do List web application using C# .NET Core with Blazor. It uses pure Static Server-Side Rendering (SSR) for a clean, minimalist application.
+Taskflow is a production-style ASP.NET Core Blazor application focused on secure task management, fast workflows, accessible UI patterns, and resilient error handling.
 
-### Features
-* User Authentication System (ASP.NET Core Identity, SQLite)
-* CRUD Operations for Tasks (Create, Read, Update, Delete)
-* Task Categories & Priority Flags
-* Mobile-responsive interface
-* Database migrations and SQLite file-based DB
+## Highlights
+- Secure authentication and authorization using ASP.NET Core Identity.
+- Full task lifecycle (create, read, update, toggle completion, delete).
+- Advanced filtering by category, priority, status, overdue, and view modes.
+- Settings center for profile updates, password changes, theme preferences, and data export/delete controls.
+- Responsive dashboard and WCAG-oriented interaction patterns (focus states, skip link, semantic landmarks, ARIA feedback messaging).
+- Automatic EF Core database migrations at startup.
 
-## Setup Instructions
+## Technology Stack
+- .NET 10 / ASP.NET Core Blazor (Interactive Server)
+- Entity Framework Core + SQLite
+- ASP.NET Core Identity
+- Bootstrap 5 + custom design system CSS
 
-### Prerequisites
-* .NET 10 SDK
-
-### How to Run the Application
-1. Open a terminal and navigate to the project root directory where the `.sln` or `TodoApp.csproj` is located:
+## Run Locally
+1. Open a terminal in the repository root.
+2. Navigate to the web project:
    ```bash
-   cd TodoApp
-   cd TodoApp
+   cd TodoApp/TodoApp
    ```
-2. Build and run the project using the .NET CLI:
+3. Build and run:
    ```bash
    dotnet run
    ```
-   *This command will automatically build the application and start a local server.*
-3. Open a web browser and navigate to the URL indicated in the terminal (typically `http://localhost:5249`).
-4. Click "Register" to create a new account and begin creating tasks.
+4. Open the URL shown in the terminal (typically `http://localhost:5xxx` or `https://localhost:7xxx`).
 
-*Note: The database will be created automatically on the first run using Entity Framework Migrations.*
-
-### Migration Commands
-If you need to update or recreate the database manually, you can run the following EF Core CLI commands inside the `TodoApp/TodoApp` directory:
-
+## Build Verification
 ```bash
-# To add a new migration:
-dotnet ef migrations add <MigrationName>
+cd TodoApp/TodoApp
+dotnet build
+```
 
-# To update the database schema:
+## Database and Migrations
+From `TodoApp/TodoApp`:
+```bash
+dotnet ef migrations add <MigrationName>
 dotnet ef database update
 ```
 
-### Package References
-The application relies on the following NuGet packages:
-- `Microsoft.AspNetCore.Identity.EntityFrameworkCore` (Version 10.0.5)
-- `Microsoft.AspNetCore.Identity.UI` (Version 10.0.5)
-- `Microsoft.EntityFrameworkCore.Sqlite` (Version 10.0.5)
-- `Microsoft.EntityFrameworkCore.Tools` (Version 10.0.5)
+## Documentation Index
+- User documentation: `docs/USER_GUIDE.md`
+- Developer documentation: `docs/DEVELOPER_GUIDE.md`
+- Project board snapshot and completion evidence: `docs/PROJECT_BOARD.md`
+
+## CI/CD
+GitHub Actions workflow is configured in `.github/workflows/main_cse325team01.yml` for build and Azure deployment.

@@ -59,7 +59,11 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
+// Don't re-execute status-code pages for Blazor transport requests.
+// Rewriting /_blazor 404s to the NotFound page can interfere with reconnection behavior.
+app.UseWhen(
+    context => !context.Request.Path.StartsWithSegments("/_blazor"),
+    branch => branch.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true));
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
