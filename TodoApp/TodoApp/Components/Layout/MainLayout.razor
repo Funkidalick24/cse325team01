@@ -3,6 +3,8 @@
 @using System.Security.Claims
 
 <div class="app-shell">
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
     <header class="top-nav">
         <div class="top-nav-inner">
             <a class="top-brand" href="/">Taskflow</a>
@@ -72,7 +74,7 @@
         </div>
     </header>
 
-    <main>
+    <main id="main-content" tabindex="-1">
         <article class="content px-4">
             @Body
         </article>
